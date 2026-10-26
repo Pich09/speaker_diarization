@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local configuration
+.env
+.env.*
+.idea/
+.vscode/
+
+# Large/generated data and checkpoints
+DiariZen/
+data/
+models/
+runs/
+runs_full/
+
+# Ad-hoc validation outputs from speaker extraction
+artifacts/dev_demo/model_extract/
+artifacts/dev_demo/split_test/
+artifacts/dev_demo/split_test_provided/
+
+# Logs and OS files
+*.log
+*.pid
+.DS_Store
+Thumbs.db

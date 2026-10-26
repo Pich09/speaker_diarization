@@ -1,0 +1,1002 @@
+{
+  "source": "FastMSS synthetic meetings; exact source stems",
+  "simulation": {
+    "reverberate": false,
+    "use_fir": false,
+    "add_noise": false
+  },
+  "meetings": {
+    "00454c79-2580-4435-9deb-d9134c3b0f97": {
+      "duration": 61.125125,
+      "sample_rate": 16000,
+      "audio": "audio/00454c79-2580-4435-9deb-d9134c3b0f97.wav",
+      "global_gain_applied": false,
+      "global_gain": 1.3499237149714154,
+      "verification": {
+        "snr_db": 74.51918873760715,
+        "correlation": 0.9999999948255477,
+        "max_abs_residual": 3.052293322980404e-05,
+        "mix_peak": 0.733367919921875
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0002",
+          "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/f-adt1-0002.wav",
+          "speech": 7.07575,
+          "turns": 1,
+          "rms_db": -36.754894754248355,
+          "peak": 0.17889918386936188,
+          "segments": [
+            {
+              "start": 16.201998568609643,
+              "duration": 7.07575,
+              "speech_level_db": -27.390422123551517,
+              "source_cut_id": "train-v312-00566-000041-345193"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/f-adt1-0005.wav",
+          "speech": 16.058,
+          "turns": 2,
+          "rms_db": -32.87237255622139,
+          "peak": 0.24810782074928284,
+          "segments": [
+            {
+              "start": 28.359822258656653,
+              "duration": 7.22,
+              "speech_level_db": -28.231212233240136,
+              "source_cut_id": "train-v312-00314-000000-332552"
+            },
+            {
+              "start": 45.81510948435783,
+              "duration": 8.838,
+              "speech_level_db": -26.304021391659,
+              "source_cut_id": "train-v312-00250-000037-329389"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt1-0003",
+          "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/m-adt1-0003.wav",
+          "speech": 19.148375,
+          "turns": 2,
+          "rms_db": -28.266963307385986,
+          "peak": 0.44047486782073975,
+          "segments": [
+            {
+              "start": 8.517050873085525,
+              "duration": 8.440875,
+              "speech_level_db": -30.630961438477755,
+              "source_cut_id": "train-v312-00526-000002-343154"
+            },
+            {
+              "start": 50.41766030305743,
+              "duration": 10.7075,
+              "speech_level_db": -21.064358193351715,
+              "source_cut_id": "train-v312-00555-000034-344636"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt1-0005",
+          "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/m-adt1-0005.wav",
+          "speech": 22.988374999999998,
+          "turns": 3,
+          "rms_db": -22.14229194628927,
+          "peak": 0.7333747744560242,
+          "segments": [
+            {
+              "start": 0.05157695731789058,
+              "duration": 7.796375,
+              "speech_level_db": -19.792459639101306,
+              "source_cut_id": "train-v312-00288-000017-331269"
+            },
+            {
+              "start": 24.14621715518605,
+              "duration": 6.87,
+              "speech_level_db": -20.215720030897828,
+              "source_cut_id": "train-v312-00356-000019-334671"
+            },
+            {
+              "start": 36.906415029014084,
+              "duration": 8.322,
+              "speech_level_db": -15.659440869315164,
+              "source_cut_id": "train-v312-00256-000007-329659"
+            }
+          ]
+        }
+      ]
+    },
+    "00716422-f4a1-4a37-8170-d0eb2e110103": {
+      "duration": 61.8930625,
+      "sample_rate": 16000,
+      "audio": "audio/00716422-f4a1-4a37-8170-d0eb2e110103.wav",
+      "global_gain_applied": false,
+      "global_gain": 1.7743189276815305,
+      "verification": {
+        "snr_db": 74.07551494304056,
+        "correlation": 0.9999999945370962,
+        "max_abs_residual": 3.0517578125e-05,
+        "mix_peak": 0.557952880859375
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/f-adt1-0005.wav",
+          "speech": 8.55,
+          "turns": 1,
+          "rms_db": -32.94621148758938,
+          "peak": 0.3289628326892853,
+          "segments": [
+            {
+              "start": 31.066439965282182,
+              "duration": 8.55,
+              "speech_level_db": -24.349452614875023,
+              "source_cut_id": "train-v38-00436-000032-404068"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt2-0002",
+          "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/f-adt2-0002.wav",
+          "speech": 13.0,
+          "turns": 2,
+          "rms_db": -32.65715084683583,
+          "peak": 0.3477551341056824,
+          "segments": [
+            {
+              "start": 35.44302269317916,
+              "duration": 5.99,
+              "speech_level_db": -31.76999464618386,
+              "source_cut_id": "train-v38-00442-000001-404337"
+            },
+            {
+              "start": 42.23068761697555,
+              "duration": 7.01,
+              "speech_level_db": -23.74674073088648,
+              "source_cut_id": "train-v38-00498-000028-407164"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt1-0003",
+          "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/m-adt1-0003.wav",
+          "speech": 54.599999999999994,
+          "turns": 6,
+          "rms_db": -21.823406858257894,
+          "peak": 0.557960569858551,
+          "segments": [
+            {
+              "start": 0.5917085246804054,
+              "duration": 12.12,
+              "speech_level_db": -18.801008037442024,
+              "source_cut_id": "train-v38-00389-000004-401690"
+            },
+            {
+              "start": 12.803257896848175,
+              "duration": 7.93,
+              "speech_level_db": -17.06420021562539,
+              "source_cut_id": "train-v38-00424-000006-403442"
+            },
+            {
+              "start": 21.362546289687927,
+              "duration": 8.65,
+              "speech_level_db": -29.23484167059062,
+              "source_cut_id": "train-v38-00441-000012-404298"
+            },
+            {
+              "start": 30.106049812237956,
+              "duration": 6.69,
+              "speech_level_db": -25.622265776819862,
+              "source_cut_id": "train-v38-00430-000012-403748"
+            },
+            {
+              "start": 42.44098761697555,
+              "duration": 11.98,
+              "speech_level_db": -26.79759028711695,
+              "source_cut_id": "train-v38-00445-000036-404522"
+            },
+            {
+              "start": 54.66306866634781,
+              "duration": 7.23,
+              "speech_level_db": -22.863188342327934,
+              "source_cut_id": "train-v38-00440-000033-404269"
+            }
+          ]
+        }
+      ]
+    },
+    "00d68569-4281-41b9-9985-df1c026b2ddc": {
+      "duration": 68.3121875,
+      "sample_rate": 16000,
+      "audio": "audio/00d68569-4281-41b9-9985-df1c026b2ddc.wav",
+      "global_gain_applied": false,
+      "global_gain": 2.4126177217752995,
+      "verification": {
+        "snr_db": 70.06269339884642,
+        "correlation": 0.9999999855155031,
+        "max_abs_residual": 3.052345709875226e-05,
+        "mix_peak": 0.410369873046875
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0002",
+          "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0002.wav",
+          "speech": 31.75,
+          "turns": 4,
+          "rms_db": -28.555451426224437,
+          "peak": 0.31628698110580444,
+          "segments": [
+            {
+              "start": 0.9284659079742836,
+              "duration": 10.81,
+              "speech_level_db": -25.75526263642366,
+              "source_cut_id": "train-v39-00523-000038-438497"
+            },
+            {
+              "start": 11.738465907974284,
+              "duration": 3.18,
+              "speech_level_db": -27.820824888221637,
+              "source_cut_id": "train-v39-00523-000003-438462"
+            },
+            {
+              "start": 25.491562336987013,
+              "duration": 7.59,
+              "speech_level_db": -33.24987033854324,
+              "source_cut_id": "train-v39-00464-000006-435515"
+            },
+            {
+              "start": 42.96408388722178,
+              "duration": 10.17,
+              "speech_level_db": -22.461591068070785,
+              "source_cut_id": "train-v39-00458-000009-435218"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt1-0004",
+          "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0004.wav",
+          "speech": 27.669937500000003,
+          "turns": 4,
+          "rms_db": -31.490272367429316,
+          "peak": 0.26031365990638733,
+          "segments": [
+            {
+              "start": 6.120100294722724,
+              "duration": 5.23,
+              "speech_level_db": -23.22211742256396,
+              "source_cut_id": "train-v39-00446-000046-434655"
+            },
+            {
+              "start": 16.1752767201121,
+              "duration": 8.04,
+              "speech_level_db": -31.451022875934207,
+              "source_cut_id": "train-v39-00447-000008-434667"
+            },
+            {
+              "start": 53.620168470350876,
+              "duration": 3.85,
+              "speech_level_db": -24.117871565387443,
+              "source_cut_id": "train-v39-00406-000019-432628"
+            },
+            {
+              "start": 57.76228377269187,
+              "duration": 10.5499375,
+              "speech_level_db": -35.62139990079135,
+              "source_cut_id": "train-v39-00424-000018-433527"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0005.wav",
+          "speech": 21.79,
+          "turns": 3,
+          "rms_db": -30.642070867439053,
+          "peak": 0.36931219696998596,
+          "segments": [
+            {
+              "start": 22.206478054282567,
+              "duration": 8.36,
+              "speech_level_db": -22.3370273392044,
+              "source_cut_id": "train-v39-00657-000043-445202"
+            },
+            {
+              "start": 33.461258122116355,
+              "duration": 4.45,
+              "speech_level_db": -35.81043420041446,
+              "source_cut_id": "train-v39-00674-000024-446033"
+            },
+            {
+              "start": 38.49983675276475,
+              "duration": 8.98,
+              "speech_level_db": -30.016096825094237,
+              "source_cut_id": "train-v39-00610-000044-442853"
+            }
+          ]
+        }
+      ]
+    },
+    "0113aa6c-197b-433e-bab1-6410990b91a2": {
+      "duration": 62.9805625,
+      "sample_rate": 16000,
+      "audio": "audio/0113aa6c-197b-433e-bab1-6410990b91a2.wav",
+      "global_gain_applied": true,
+      "global_gain": 0.39927845347281476,
+      "verification": {
+        "snr_db": 76.16828276154722,
+        "correlation": 0.9999999967644229,
+        "max_abs_residual": 3.053379140874335e-05,
+        "mix_peak": 0.989990234375
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/0113aa6c-197b-433e-bab1-6410990b91a2/f-adt1-0005.wav",
+          "speech": 18.67925,
+          "turns": 2,
+          "rms_db": -26.95385798263721,
+          "peak": 0.6543317802059335,
+          "segments": [
+            {
+              "start": 17.93248138511268,
+              "duration": 10.1778125,
+              "speech_level_db": -22.261754173914717,
+              "source_cut_id": "train-v313-00411-000045-366495"
+            },
+            {
+              "start": 29.234092218613444,
+              "duration": 8.5014375,
+              "speech_level_db": -10.625018228277629,
+              "source_cut_id": "train-v313-00346-000046-363246"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt4-0001",
+          "audio": "solo/0113aa6c-197b-433e-bab1-6410990b91a2/m-adt4-0001.wav",
+          "speech": 51.339999999999996,
+          "turns": 3,
+          "rms_db": -19.786083426511205,
+          "peak": 0.99,
+          "segments": [
+            {
+              "start": 0.3902085024479177,
+              "duration": 17.02,
+              "speech_level_db": -6.891605023581846,
+              "source_cut_id": "train-v313-00414-000010-366610"
+            },
+            {
+              "start": 28.650592218613447,
+              "duration": 19.45,
+              "speech_level_db": -19.60520274364555,
+              "source_cut_id": "train-v313-00071-000000-349450"
+            },
+            {
+              "start": 48.11059221861344,
+              "duration": 14.87,
+              "speech_level_db": -15.140962500576196,
+              "source_cut_id": "train-v313-00467-000012-369262"
+            }
+          ]
+        }
+      ]
+    },
+    "016a9054-c68d-495e-978d-c944f23e80ec": {
+      "duration": 65.0330625,
+      "sample_rate": 16000,
+      "audio": "audio/016a9054-c68d-495e-978d-c944f23e80ec.wav",
+      "global_gain_applied": true,
+      "global_gain": 0.36252154772767986,
+      "verification": {
+        "snr_db": 77.63475853256166,
+        "correlation": 0.9999999976799581,
+        "max_abs_residual": 3.055390473094555e-05,
+        "mix_peak": 0.990020751953125
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/016a9054-c68d-495e-978d-c944f23e80ec/f-adt1-0005.wav",
+          "speech": 40.480000000000004,
+          "turns": 5,
+          "rms_db": -18.921022679238877,
+          "peak": 0.9899999999999999,
+          "segments": [
+            {
+              "start": 0.8147472997910267,
+              "duration": 4.72,
+              "speech_level_db": -12.930216244946328,
+              "source_cut_id": "train-v39-00679-000038-446297"
+            },
+            {
+              "start": 16.72208776168723,
+              "duration": 6.37,
+              "speech_level_db": -14.055511059101882,
+              "source_cut_id": "train-v39-00671-000021-445880"
+            },
+            {
+              "start": 34.74207744593742,
+              "duration": 6.07,
+              "speech_level_db": -6.601329551628728,
+              "source_cut_id": "train-v39-00620-000012-443321"
+            },
+            {
+              "start": 41.65004969493338,
+              "duration": 14.0,
+              "speech_level_db": -7.632248684130435,
+              "source_cut_id": "train-v39-00625-000034-443593"
+            },
+            {
+              "start": 55.71311629610658,
+              "duration": 9.32,
+              "speech_level_db": -6.449763221168395,
+              "source_cut_id": "train-v39-00638-000003-444212"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt2-0002",
+          "audio": "solo/016a9054-c68d-495e-978d-c944f23e80ec/f-adt2-0002.wav",
+          "speech": 24.598750000000003,
+          "turns": 2,
+          "rms_db": -23.269092059493694,
+          "peak": 0.5068345112513344,
+          "segments": [
+            {
+              "start": 4.97985320218453,
+              "duration": 12.68875,
+              "speech_level_db": -11.375907040636275,
+              "source_cut_id": "train-v39-00556-000014-440123"
+            },
+            {
+              "start": 22.667075822721863,
+              "duration": 11.91,
+              "speech_level_db": -9.276953412608727,
+              "source_cut_id": "train-v39-00651-000022-444881"
+            }
+          ]
+        }
+      ]
+    },
+    "01b7256b-6c35-4e30-bf42-99e4f20c7be3": {
+      "duration": 92.1388125,
+      "sample_rate": 16000,
+      "audio": "audio/01b7256b-6c35-4e30-bf42-99e4f20c7be3.wav",
+      "global_gain_applied": true,
+      "global_gain": 0.6469246830985326,
+      "verification": {
+        "snr_db": 76.9255838260243,
+        "correlation": 0.999999997159667,
+        "max_abs_residual": 3.054264435567444e-05,
+        "mix_peak": 0.990020751953125
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0002",
+          "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/f-adt1-0002.wav",
+          "speech": 13.193125,
+          "turns": 2,
+          "rms_db": -24.69773330997168,
+          "peak": 0.6839809557068438,
+          "segments": [
+            {
+              "start": 7.207176571241895,
+              "duration": 5.503125,
+              "speech_level_db": -11.564700879114849,
+              "source_cut_id": "train-00625-of-00653-000213-250057"
+            },
+            {
+              "start": 68.72341086715598,
+              "duration": 7.69,
+              "speech_level_db": -13.265550316722877,
+              "source_cut_id": "train-00625-of-00653-000374-250218"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt1-0004",
+          "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt1-0004.wav",
+          "speech": 3.86,
+          "turns": 1,
+          "rms_db": -36.25214864456905,
+          "peak": 0.26422096773747517,
+          "segments": [
+            {
+              "start": 88.27883947685764,
+              "duration": 3.86,
+              "speech_level_db": -18.69067074988272,
+              "source_cut_id": "train-00625-of-00653-000132-249976"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0001",
+          "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt2-0001.wav",
+          "speech": 46.812,
+          "turns": 7,
+          "rms_db": -20.979208351963386,
+          "peak": 0.7371590455465417,
+          "segments": [
+            {
+              "start": 10.810669496201067,
+              "duration": 7.09,
+              "speech_level_db": -19.312689913206633,
+              "source_cut_id": "train-00625-of-00653-000062-249906"
+            },
+            {
+              "start": 18.68330420532007,
+              "duration": 6.5,
+              "speech_level_db": -11.84714674566327,
+              "source_cut_id": "train-00624-of-00653-000228-249672"
+            },
+            {
+              "start": 33.47633088237776,
+              "duration": 8.66,
+              "speech_level_db": -13.356258145289024,
+              "source_cut_id": "train-00624-of-00653-000242-249686"
+            },
+            {
+              "start": 43.02002640007079,
+              "duration": 6.5,
+              "speech_level_db": -17.306887333663624,
+              "source_cut_id": "train-00624-of-00653-000228-249672"
+            },
+            {
+              "start": 50.00400165828068,
+              "duration": 6.29,
+              "speech_level_db": -11.914616904886287,
+              "source_cut_id": "train-00624-of-00653-000232-249676"
+            },
+            {
+              "start": 62.605131830679504,
+              "duration": 5.972,
+              "speech_level_db": -13.331298429482654,
+              "source_cut_id": "train-00623-of-00653-000321-249365"
+            },
+            {
+              "start": 76.18271086715598,
+              "duration": 5.8,
+              "speech_level_db": -20.9565405732898,
+              "source_cut_id": "train-00625-of-00653-000164-250008"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0002",
+          "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt2-0002.wav",
+          "speech": 40.36,
+          "turns": 5,
+          "rms_db": -25.144351930043115,
+          "peak": 0.4918348064378211,
+          "segments": [
+            {
+              "start": 0.9635624250691833,
+              "duration": 7.03,
+              "speech_level_db": -19.525973276266203,
+              "source_cut_id": "train-00626-of-00653-000099-250343"
+            },
+            {
+              "start": 25.228195134821526,
+              "duration": 7.96,
+              "speech_level_db": -17.0565406010048,
+              "source_cut_id": "train-00626-of-00653-000277-250521"
+            },
+            {
+              "start": 33.23123088237776,
+              "duration": 8.17,
+              "speech_level_db": -20.542852302948276,
+              "source_cut_id": "train-00626-of-00653-000071-250315"
+            },
+            {
+              "start": 53.91443491025172,
+              "duration": 8.58,
+              "speech_level_db": -14.540810297754728,
+              "source_cut_id": "train-00625-of-00653-000309-250153"
+            },
+            {
+              "start": 82.2517931038342,
+              "duration": 8.62,
+              "speech_level_db": -21.253914121340426,
+              "source_cut_id": "train-00626-of-00653-000070-250314"
+            }
+          ]
+        }
+      ]
+    },
+    "01ee74a6-1dab-48e8-b921-293cb6a8a65c": {
+      "duration": 61.9778125,
+      "sample_rate": 16000,
+      "audio": "audio/01ee74a6-1dab-48e8-b921-293cb6a8a65c.wav",
+      "global_gain_applied": true,
+      "global_gain": 0.47071260027031314,
+      "verification": {
+        "snr_db": 73.13582067021392,
+        "correlation": 0.9999999934916375,
+        "max_abs_residual": 3.054350242821802e-05,
+        "mix_peak": 0.990020751953125
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0002",
+          "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/f-adt1-0002.wav",
+          "speech": 4.3908125,
+          "turns": 1,
+          "rms_db": -45.300128577834826,
+          "peak": 0.08115469497128061,
+          "segments": [
+            {
+              "start": 5.073585181251437,
+              "duration": 4.3908125,
+              "speech_level_db": -27.258332240384494,
+              "source_cut_id": "train-v312-00050-000018-319370"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/f-adt1-0005.wav",
+          "speech": 38.1765,
+          "turns": 6,
+          "rms_db": -24.57160916543257,
+          "peak": 0.7035411639199435,
+          "segments": [
+            {
+              "start": 7.810753497842938,
+              "duration": 5.2876875,
+              "speech_level_db": -26.929555293876298,
+              "source_cut_id": "train-v312-00115-000041-322643"
+            },
+            {
+              "start": 13.126853417266942,
+              "duration": 5.3731875,
+              "speech_level_db": -15.37693684058192,
+              "source_cut_id": "train-v312-00103-000003-322005"
+            },
+            {
+              "start": 34.116795654283145,
+              "duration": 6.4776875,
+              "speech_level_db": -12.691000063555451,
+              "source_cut_id": "train-v312-00078-000002-320754"
+            },
+            {
+              "start": 40.67789647305492,
+              "duration": 6.58,
+              "speech_level_db": -12.408528717112194,
+              "source_cut_id": "train-v312-00139-000008-323810"
+            },
+            {
+              "start": 47.389583296515326,
+              "duration": 9.5245625,
+              "speech_level_db": -23.215603394458938,
+              "source_cut_id": "train-v312-00209-000026-327328"
+            },
+            {
+              "start": 57.04445871255543,
+              "duration": 4.933375,
+              "speech_level_db": -21.153204572750056,
+              "source_cut_id": "train-v312-00121-000029-322931"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0002",
+          "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/m-adt2-0002.wav",
+          "speech": 28.231,
+          "turns": 4,
+          "rms_db": -25.699518183497773,
+          "peak": 0.6214962592682263,
+          "segments": [
+            {
+              "start": 0.39617065613889657,
+              "duration": 4.8651875,
+              "speech_level_db": -27.72479989645231,
+              "source_cut_id": "train-v312-00042-000001-318953"
+            },
+            {
+              "start": 18.30242237844315,
+              "duration": 8.2741875,
+              "speech_level_db": -19.631611692399865,
+              "source_cut_id": "train-v312-00222-000025-327977"
+            },
+            {
+              "start": 27.47201117589317,
+              "duration": 5.8619375,
+              "speech_level_db": -16.64691324332929,
+              "source_cut_id": "train-v312-00022-000046-317998"
+            },
+            {
+              "start": 33.350939718532295,
+              "duration": 9.2296875,
+              "speech_level_db": -12.427075826979133,
+              "source_cut_id": "train-v312-00144-000025-324077"
+            }
+          ]
+        }
+      ]
+    },
+    "02216a40-5e76-4590-967a-ed3b7fcfff39": {
+      "duration": 65.2179375,
+      "sample_rate": 16000,
+      "audio": "audio/02216a40-5e76-4590-967a-ed3b7fcfff39.wav",
+      "global_gain_applied": false,
+      "global_gain": 4.631844429234512,
+      "verification": {
+        "snr_db": 63.38184095286471,
+        "correlation": 0.9999999362901958,
+        "max_abs_residual": 3.052013926208019e-05,
+        "mix_peak": 0.2137451171875
+      },
+      "speakers": [
+        {
+          "raw": "m-adt1-0003",
+          "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt1-0003.wav",
+          "speech": 50.04,
+          "turns": 4,
+          "rms_db": -34.25384418035377,
+          "peak": 0.1116129532456398,
+          "segments": [
+            {
+              "start": 0.4568178698377403,
+              "duration": 9.55,
+              "speech_level_db": -40.555898930914594,
+              "source_cut_id": "train-v38-00254-000010-394946"
+            },
+            {
+              "start": 24.52096438174958,
+              "duration": 13.33,
+              "speech_level_db": -32.729808941043,
+              "source_cut_id": "train-v38-00202-000039-392375"
+            },
+            {
+              "start": 37.860964381749575,
+              "duration": 11.34,
+              "speech_level_db": -32.69205995518865,
+              "source_cut_id": "train-v38-00087-000046-386632"
+            },
+            {
+              "start": 49.397949645954235,
+              "duration": 15.82,
+              "speech_level_db": -31.80562408759696,
+              "source_cut_id": "train-v38-00003-000019-382405"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0001",
+          "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt2-0001.wav",
+          "speech": 6.2,
+          "turns": 1,
+          "rms_db": -52.64856032605681,
+          "peak": 0.02814212255179882,
+          "segments": [
+            {
+              "start": 34.67779904990858,
+              "duration": 6.2,
+              "speech_level_db": -42.42880680356996,
+              "source_cut_id": "train-v38-00243-000008-394394"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0002",
+          "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt2-0002.wav",
+          "speech": 20.42,
+          "turns": 2,
+          "rms_db": -35.6801160508373,
+          "peak": 0.13188759982585907,
+          "segments": [
+            {
+              "start": 10.679910352827346,
+              "duration": 10.49,
+              "speech_level_db": -34.511328952939465,
+              "source_cut_id": "train-v38-00158-000046-390182"
+            },
+            {
+              "start": 22.145062052945313,
+              "duration": 9.93,
+              "speech_level_db": -28.532510473842102,
+              "source_cut_id": "train-v38-00130-000008-388744"
+            }
+          ]
+        }
+      ]
+    },
+    "024cc08a-9b53-4c4d-9692-911a5f8da769": {
+      "duration": 68.856625,
+      "sample_rate": 16000,
+      "audio": "audio/024cc08a-9b53-4c4d-9692-911a5f8da769.wav",
+      "global_gain_applied": false,
+      "global_gain": 4.119492367174204,
+      "verification": {
+        "snr_db": 63.441609282016586,
+        "correlation": 0.9999999398904763,
+        "max_abs_residual": 3.052433021366596e-05,
+        "mix_peak": 0.240325927734375
+      },
+      "speakers": [
+        {
+          "raw": "f-adt1-0005",
+          "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/f-adt1-0005.wav",
+          "speech": 22.6203125,
+          "turns": 3,
+          "rms_db": -35.609895533972406,
+          "peak": 0.21603411436080933,
+          "segments": [
+            {
+              "start": 0.6672212787455649,
+              "duration": 8.277625,
+              "speech_level_db": -28.466238123211305,
+              "source_cut_id": "train-v312-00202-000016-326968"
+            },
+            {
+              "start": 9.772351917172271,
+              "duration": 6.32,
+              "speech_level_db": -29.92994062606171,
+              "source_cut_id": "train-v312-00140-000041-323893"
+            },
+            {
+              "start": 39.4517095097031,
+              "duration": 8.0226875,
+              "speech_level_db": -40.49988125848245,
+              "source_cut_id": "train-v312-00166-000045-325197"
+            }
+          ]
+        },
+        {
+          "raw": "f-adt2-0002",
+          "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/f-adt2-0002.wav",
+          "speech": 12.5546875,
+          "turns": 2,
+          "rms_db": -39.50131712824674,
+          "peak": 0.12850843369960785,
+          "segments": [
+            {
+              "start": 15.99952381026502,
+              "duration": 7.9546875,
+              "speech_level_db": -30.34861376259361,
+              "source_cut_id": "train-v312-00161-000036-324938"
+            },
+            {
+              "start": 54.325270883457684,
+              "duration": 4.6,
+              "speech_level_db": -40.80254286700859,
+              "source_cut_id": "train-v312-00111-000006-322408"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0002",
+          "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/m-adt2-0002.wav",
+          "speech": 55.6703125,
+          "turns": 7,
+          "rms_db": -35.434561185618435,
+          "peak": 0.10096029937267303,
+          "segments": [
+            {
+              "start": 0.4363806537455649,
+              "duration": 7.6946875,
+              "speech_level_db": -36.784978781354184,
+              "source_cut_id": "train-v312-00236-000001-328653"
+            },
+            {
+              "start": 8.131068153745565,
+              "duration": 4.8700625,
+              "speech_level_db": -37.429057174264145,
+              "source_cut_id": "train-v312-00075-000009-320611"
+            },
+            {
+              "start": 14.94159548084865,
+              "duration": 8.6914375,
+              "speech_level_db": -38.762238464511796,
+              "source_cut_id": "train-v312-00248-000007-329259"
+            },
+            {
+              "start": 23.64303298084865,
+              "duration": 10.55,
+              "speech_level_db": -33.75877630619631,
+              "source_cut_id": "train-v312-00171-000005-325407"
+            },
+            {
+              "start": 34.46656085215598,
+              "duration": 5.6959375,
+              "speech_level_db": -33.04472542824982,
+              "source_cut_id": "train-v312-00100-000020-321872"
+            },
+            {
+              "start": 45.339697114448455,
+              "duration": 8.5181875,
+              "speech_level_db": -32.67870444591765,
+              "source_cut_id": "train-v312-00162-000007-324959"
+            },
+            {
+              "start": 59.206635727125786,
+              "duration": 9.65,
+              "speech_level_db": -33.62379269620751,
+              "source_cut_id": "train-v312-00199-000012-326814"
+            }
+          ]
+        }
+      ]
+    },
+    "03694de5-ea85-4da0-bde0-f3abb2ba0ea4": {
+      "duration": 66.1713125,
+      "sample_rate": 16000,
+      "audio": "audio/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.wav",
+      "global_gain_applied": false,
+      "global_gain": 1.2862837553339777,
+      "verification": {
+        "snr_db": 72.35846605936399,
+        "correlation": 0.9999999924216197,
+        "max_abs_residual": 3.0528753995895386e-05,
+        "mix_peak": 0.769683837890625
+      },
+      "speakers": [
+        {
+          "raw": "m-adt1-0003",
+          "audio": "solo/03694de5-ea85-4da0-bde0-f3abb2ba0ea4/m-adt1-0003.wav",
+          "speech": 38.55681250000001,
+          "turns": 4,
+          "rms_db": -27.11518298881399,
+          "peak": 0.7696591019630432,
+          "segments": [
+            {
+              "start": 0.43920811098198487,
+              "duration": 6.292625,
+              "speech_level_db": -20.225706026297082,
+              "source_cut_id": "train-00036-of-00653-000125-14521"
+            },
+            {
+              "start": 6.929491490118878,
+              "duration": 13.6069375,
+              "speech_level_db": -32.66116837894431,
+              "source_cut_id": "train-00037-of-00653-000206-15002"
+            },
+            {
+              "start": 20.54642899011888,
+              "duration": 10.4954375,
+              "speech_level_db": -22.916850336929144,
+              "source_cut_id": "train-00035-of-00653-000057-14053"
+            },
+            {
+              "start": 44.24852938803997,
+              "duration": 8.1618125,
+              "speech_level_db": -30.173350789597677,
+              "source_cut_id": "train-00035-of-00653-000042-14038"
+            }
+          ]
+        },
+        {
+          "raw": "m-adt2-0001",
+          "audio": "solo/03694de5-ea85-4da0-bde0-f3abb2ba0ea4/m-adt2-0001.wav",
+          "speech": 31.416687500000002,
+          "turns": 3,
+          "rms_db": -24.785346373003904,
+          "peak": 0.6348754167556763,
+          "segments": [
+            {
+              "start": 7.337699615118877,
+              "duration": 3.285625,
+              "speech_level_db": -30.60181428128572,
+              "source_cut_id": "train-00000-of-00653-000036-36"
+            },
+            {
+              "start": 31.405546117325734,
+              "duration": 14.3731875,
+              "speech_level_db": -19.85728428282414,
+              "source_cut_id": "train-00000-of-00653-000043-43"
+            },
+            {
+              "start": 52.41347625387306,
+              "duration": 13.757875,
+              "speech_level_db": -23.031125303806164,
+              "source_cut_id": "train-00000-of-00653-000033-33"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

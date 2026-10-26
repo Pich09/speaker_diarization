@@ -1,0 +1,4 @@
+* text=auto
+*.wav binary
+*.flac binary
+*.gz binary

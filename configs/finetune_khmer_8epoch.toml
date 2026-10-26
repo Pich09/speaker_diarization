@@ -1,0 +1,84 @@
+[meta]
+save_dir = "__SAVE_DIR__"
+seed = __SEED__
+
+[finetune]
+finetune = true
+ckpt_dir = "__CKPT_DIR__"
+
+[trainer]
+path = "trainer_dual_opt.Trainer"
+[trainer.args]
+max_epochs = __MAX_EPOCHS__
+gradient_percentile = 90
+gradient_history_size = 1000
+save_max_score = false
+save_ckpt_interval = 1
+max_patience = 8
+max_num_checkpoints = 20
+gradient_accumulation_steps = __GRAD_ACCUM__
+validation_interval = 1
+freeze_wavlm = __FREEZE__
+lr_decay = false
+use_one_cycle_lr = false
+
+[optimizer_small]
+path = "torch.optim.AdamW"
+[optimizer_small.args]
+lr = 2e-5
+
+[optimizer_big]
+path = "torch.optim.AdamW"
+[optimizer_big.args]
+lr = 1e-3
+
+[model]
+path = "diarizen.models.eend.model_wavlm_conformer.Model"
+[model.args]
+wavlm_src = "wavlm_large_s80_md"
+wavlm_layer_num = 25
+wavlm_feat_dim = 1024
+attention_in = 256
+ffn_hidden = 1024
+num_head = 4
+num_layer = 4
+kernel_size = 31
+dropout = 0.1
+use_posi = false
+output_activate_function = false
+selected_channel = 0
+max_speakers_per_chunk = 4
+max_speakers_per_frame = 4
+chunk_size = __CHUNK_SIZE__
+
+[train_dataset]
+path = "dataset.DiarizationDataset"
+[train_dataset.args]
+scp_file = "__TRAIN_WAV__"
+rttm_file = "__TRAIN_RTTM__"
+uem_file = "__TRAIN_UEM__"
+chunk_size = __CHUNK_SIZE__
+chunk_shift = __TRAIN_SHIFT__
+sample_rate = 16000
+
+[train_dataset.dataloader]
+batch_size = __TRAIN_BATCH__
+num_workers = __NUM_WORKERS__
+drop_last = true
+pin_memory = true
+
+[validate_dataset]
+path = "dataset.DiarizationDataset"
+[validate_dataset.args]
+scp_file = "__DEV_WAV__"
+rttm_file = "__DEV_RTTM__"
+uem_file = "__DEV_UEM__"
+chunk_size = __CHUNK_SIZE__
+chunk_shift = __VAL_SHIFT__
+sample_rate = 16000
+
+[validate_dataset.dataloader]
+batch_size = __VAL_BATCH__
+num_workers = __NUM_WORKERS__
+drop_last = true
+pin_memory = true

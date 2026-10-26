@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DiariZen Khmer Fine-Tune Pilot</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #121a31;
+    --panel-2: #17213d;
+    --line: #2a3658;
+    --text: #e8edf8;
+    --muted: #9aa8c7;
+    --accent: #6ea8ff;
+    --accent-2: #8b7cff;
+    --good: #3ddc97;
+    --warn: #ffbf69;
+    --bad: #ff6b81;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--text);
+    background:
+      radial-gradient(900px 500px at 8% -10%, rgba(110,168,255,.20), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(139,124,255,.16), transparent 55%),
+      var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  header { padding: 56px 0 28px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgba(61,220,151,.14); }
+  h1 { margin: 12px 0 10px; font-size: clamp(32px, 5vw, 58px); line-height: 1.05; letter-spacing: -0.03em; }
+  h1 span { color: var(--accent); }
+  .lede { max-width: 900px; color: var(--muted); font-size: 17px; margin: 0; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .badge { border: 1px solid var(--line); background: rgba(20,29,54,.75); color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+  .badge.done { color: var(--good); border-color: rgba(61,220,151,.35); background: rgba(61,220,151,.08); }
+  .badge.pass { color: var(--good); border-color: rgba(61,220,151,.45); background: rgba(61,220,151,.12); font-weight: 700; }
+  main { padding-bottom: 60px; }
+  section { margin: 26px 0; }
+  .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .card, .panel {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(23,33,61,.92), rgba(18,26,49,.92));
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card { padding: 18px; min-height: 128px; display: flex; flex-direction: column; justify-content: space-between; }
+  .card.primary { border-color: rgba(110,168,255,.55); background: linear-gradient(180deg, rgba(110,168,255,.18), rgba(18,26,49,.92)); }
+  .card.gate { border-color: rgba(61,220,151,.45); background: linear-gradient(180deg, rgba(61,220,151,.10), rgba(18,26,49,.92)); }
+  .card.good-card { border-color: rgba(61,220,151,.35); }
+  .card-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .card-value { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; margin: 8px 0 4px; }
+  .card-note { color: var(--muted); font-size: 12px; }
+  .good-text { color: var(--good); }
+  .bad-text { color: var(--bad); }
+  .grid-2 { display: grid; grid-template-columns: 1.05fr .95fr; gap: 16px; }
+  .panel { padding: 20px; }
+  .panel h3 { margin: 0 0 12px; font-size: 16px; }
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { position: relative; padding: 0 0 18px 30px; border-left: 1px solid var(--line); margin-left: 8px; }
+  .timeline li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .timeline li::before {
+    content: ""; position: absolute; left: -6px; top: 3px; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--good); border: 2px solid var(--good); box-shadow: 0 0 0 5px rgba(61,220,151,.12);
+  }
+  .timeline strong { display: block; font-size: 14px; }
+  .timeline span { color: var(--muted); font-size: 13px; }
+  .callout { border-left: 3px solid var(--good); background: rgba(61,220,151,.08); border-radius: 0 12px 12px 0; padding: 14px 16px; color: var(--muted); font-size: 14px; }
+  .callout strong { color: var(--text); }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  .stat { border: 1px solid var(--line); background: rgba(11,16,32,.35); border-radius: 12px; padding: 13px; }
+  .stat span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  .stat strong { display: block; font-size: 21px; margin: 5px 0 2px; }
+  .stat small { display: block; color: var(--muted); font-size: 11px; word-break: break-all; }
+  .data-table, .files-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th, .data-table td, .files-table th, .files-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  .data-table th, .files-table th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; background: rgba(11,16,32,.5); }
+  .files-table th { position: sticky; top: 0; z-index: 2; cursor: pointer; user-select: none; white-space: nowrap; }
+  .files-table th:hover { color: var(--text); }
+  .files-table tbody tr:hover { background: rgba(110,168,255,.06); }
+  .table-wrap { max-height: 560px; overflow: auto; border: 1px solid var(--line); border-radius: 14px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .search { width: min(360px, 100%); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(11,16,32,.55); color: var(--text); outline: none; }
+  .search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,168,255,.14); }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+  .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  .metric { display: inline-block; min-width: 68px; padding: 3px 8px; border-radius: 999px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .metric.good { color: var(--good); background: rgba(61,220,151,.10); }
+  .metric.warn { color: var(--warn); background: rgba(255,191,105,.10); }
+  .metric.bad { color: var(--bad); background: rgba(255,107,129,.10); }
+  .delta { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+  ul.clean { margin: 0; padding-left: 20px; color: var(--muted); }
+  ul.clean li { margin: 7px 0; }
+  .artifact-list { display: grid; gap: 9px; }
+  .artifact { display: flex; gap: 10px; align-items: start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: rgba(11,16,32,.3); }
+  .artifact code { color: var(--text); font-size: 12px; word-break: break-all; }
+  .artifact span { color: var(--muted); font-size: 12px; }
+  pre { margin: 0; padding: 14px 16px; overflow: auto; border-radius: 12px; border: 1px solid var(--line); background: rgba(5,9,20,.65); color: #d8e2ff; font-size: 12px; }
+  footer { border-top: 1px solid var(--line); padding: 22px 0 40px; color: var(--muted); font-size: 12px; }
+  @media (max-width: 1100px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 980px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid-2 { grid-template-columns: 1fr; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .wrap { width: min(100% - 24px, 1180px); } header { padding-top: 36px; } .cards, .stat-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="dot"></span> One-shot pilot report</div>
+    <h1>DiariZen <span>Khmer</span> fine-tune</h1>
+    <p class="lede">
+      Frozen-WavLM fine-tune of <strong>BUT-FIT/diarizen-wavlm-large-s80-md-v2</strong> on simulated Khmer meetings.
+      The fine-tuned DER is <strong class="good-text">4.62%</strong> versus
+      <strong>9.58%</strong> zero-shot: a <strong class="good-text">4.96 point</strong> improvement.
+    </p>
+    <div class="badges">
+      <span class="badge pass">Gate PASS</span>
+      <span class="badge done">Baseline 9.58%</span>
+      <span class="badge done">Fine-tuned 4.62%</span>
+      <span class="badge">82 test files</span>
+      <span class="badge">Collar 0.25 s</span>
+      <span class="badge">Simulated data</span>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2>Result at a glance</h2>
+        <p>dscore on the full 82-file holdout test split</p>
+      </div>
+      <div class="cards">
+        
+      <article class="card primary">
+        <div class="card-label">Fine-tuned DER</div>
+        <div class="card-value">4.62%</div>
+        <div class="card-note">collar 0.25 s &middot; 82 files &middot; 1.699 h</div>
+      </article>
+      <article class="card">
+        <div class="card-label">Zero-shot baseline</div>
+        <div class="card-value">9.58%</div>
+        <div class="card-note">same split and collar</div>
+      </article>
+      <article class="card good-card">
+        <div class="card-label">Improvement</div>
+        <div class="card-value good-text">4.96 pt</div>
+        <div class="card-note">70/82 files improved</div>
+      </article>
+      <article class="card">
+        <div class="card-label">JER</div>
+        <div class="card-value">15.53%</div>
+        <div class="card-note">baseline 19.95%</div>
+      </article>
+      <article class="card">
+        <div class="card-label">B3 F1</div>
+        <div class="card-value">0.960</div>
+        <div class="card-note">precision 0.940 &middot; recall 0.970</div>
+      </article>
+      <article class="card gate">
+        <div class="card-label">Gate target</div>
+        <div class="card-value">PASS</div>
+        <div class="card-note">&le; 8.58% required; delta 4.96 pt</div>
+      </article>
+    
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h3>What was run</h3>
+        <ol class="timeline">
+          <li><strong>Baseline</strong><span>Zero-shot v2 pipeline on all 82 test files: DER 9.58%.</span></li>
+          <li><strong>Data split</strong><span>Train 117.18 h / 6,207 meetings; dev 11.497 h / 611 meetings; test 1.699 h / 82 meetings.</span></li>
+          <li><strong>Fine-tune</strong><span>8 epochs completed on the full training bundle; best checkpoint at epoch 8 by validation NLL loss (0.1506), with validation DER 3.10%.</span></li>
+          <li><strong>Export and inference</strong><span>Best checkpoint exported and run on the same 82 test files with batch 2.</span></li>
+          <li><strong>Score and gate</strong><span>Fine-tuned DER 4.62%, delta 4.96 points, gate &le; 8.58%: PASS.</span></li>
+        </ol>
+      </div>
+      <div class="panel">
+        <h3>Gate decision</h3>
+        <div class="callout">
+          <strong>PASS: 4.62% vs 9.58%</strong>. The 1.0-point gate was met with a 4.96-point improvement.
+          This is evidence for a larger pilot, not a production claim: the corpus is simulated clean read speech and only the segmentation model was adapted.
+        </div>
+        <h3 style="margin-top:20px">Per-file distribution</h3>
+        <div class="stat-grid">
+          
+      <div class="stat"><span>Median file DER</span><strong>1.35%</strong></div>
+      <div class="stat"><span>Worst file</span><strong>31.94%</strong><small>86fc7e2e-6924-47d3-a95a-eb205932d7b0</small></div>
+      <div class="stat"><span>Best file</span><strong>0.00%</strong><small>0951810f-3628-47ee-a517-06bdc90620fa</small></div>
+      <div class="stat"><span>Files improved</span><strong>70/82</strong><small>baseline DER minus fine-tuned DER</small></div>
+    
+        </div>
+        <p class="muted small" style="margin:12px 0 0">
+          The gate is applied to the overall DER, not to individual files.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Per-file comparison</h2>
+        <p>82 test meetings &middot; sorted worst fine-tuned DER first &middot; click a header to sort</p>
+      </div>
+      <div class="panel">
+        <div class="toolbar">
+          <input id="search" class="search" type="search" placeholder="Filter by meeting ID..." aria-label="Filter by meeting ID">
+          <div class="legend">
+            <span><i style="background:var(--good)"></i>fine-tuned &lt; 10%</span>
+            <span><i style="background:var(--warn)"></i>10-20%</span>
+            <span><i style="background:var(--bad)"></i>&ge; 20%</span>
+            <span><i style="background:var(--good)"></i>positive delta = improvement</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="files-table" id="files">
+            <thead>
+              <tr>
+                <th data-key="id">Meeting ID</th>
+                <th data-key="base_der">Baseline DER</th>
+                <th data-key="der">Fine-tuned DER</th>
+                <th data-key="delta">Delta</th>
+                <th data-key="jer">Fine-tuned JER</th>
+                <th data-key="f1">Fine-tuned B3 F1</th>
+              </tr>
+            </thead>
+            <tbody>
+<tr data-id="86fc7e2e-6924-47d3-a95a-eb205932d7b0" data-der="31.94" data-base_der="34.13" data-delta="2.1900000000000013" data-jer="57.21" data-f1="0.81"><td class="mono">86fc7e2e-6924-47d3-a95a-eb205932d7b0</td><td>34.13%</td><td><span class="metric bad">31.94%</span></td><td><span class="delta good-text">+2.19</span></td><td>57.21%</td><td>0.810</td></tr>
+<tr data-id="2e2d67b2-4116-4e5a-ab58-a2331a7c0302" data-der="26.02" data-base_der="30.66" data-delta="4.640000000000001" data-jer="49.17" data-f1="0.73"><td class="mono">2e2d67b2-4116-4e5a-ab58-a2331a7c0302</td><td>30.66%</td><td><span class="metric bad">26.02%</span></td><td><span class="delta good-text">+4.64</span></td><td>49.17%</td><td>0.730</td></tr>
+<tr data-id="5f071cd0-9e39-4857-8cd5-4185f7b584cf" data-der="20.11" data-base_der="18.04" data-delta="-2.0700000000000003" data-jer="47.4" data-f1="0.8"><td class="mono">5f071cd0-9e39-4857-8cd5-4185f7b584cf</td><td>18.04%</td><td><span class="metric bad">20.11%</span></td><td><span class="delta bad-text">-2.07</span></td><td>47.40%</td><td>0.800</td></tr>
+<tr data-id="2be2a242-5f61-4680-8306-f6658ad9fdf0" data-der="16.18" data-base_der="16.18" data-delta="0.0" data-jer="37.43" data-f1="0.85"><td class="mono">2be2a242-5f61-4680-8306-f6658ad9fdf0</td><td>16.18%</td><td><span class="metric warn">16.18%</span></td><td><span class="delta bad-text">0.00</span></td><td>37.43%</td><td>0.850</td></tr>
+<tr data-id="863d347f-e1a2-44a5-97b1-8df024eda1f4" data-der="15.72" data-base_der="15.72" data-delta="0.0" data-jer="45.11" data-f1="0.96"><td class="mono">863d347f-e1a2-44a5-97b1-8df024eda1f4</td><td>15.72%</td><td><span class="metric warn">15.72%</span></td><td><span class="delta bad-text">0.00</span></td><td>45.11%</td><td>0.960</td></tr>
+<tr data-id="7c9b0138-2320-4996-b241-17897e493d18" data-der="14.88" data-base_der="26.01" data-delta="11.13" data-jer="13.14" data-f1="0.94"><td class="mono">7c9b0138-2320-4996-b241-17897e493d18</td><td>26.01%</td><td><span class="metric warn">14.88%</span></td><td><span class="delta good-text">+11.13</span></td><td>13.14%</td><td>0.940</td></tr>
+<tr data-id="0ab43983-7e8f-4030-94d6-82f7ef407c61" data-der="14.08" data-base_der="0.23" data-delta="-13.85" data-jer="32.41" data-f1="0.87"><td class="mono">0ab43983-7e8f-4030-94d6-82f7ef407c61</td><td>0.23%</td><td><span class="metric warn">14.08%</span></td><td><span class="delta bad-text">-13.85</span></td><td>32.41%</td><td>0.870</td></tr>
+<tr data-id="71eb98a0-544f-4206-804f-2f97d091f229" data-der="14.04" data-base_der="13.14" data-delta="-0.8999999999999986" data-jer="33.44" data-f1="0.89"><td class="mono">71eb98a0-544f-4206-804f-2f97d091f229</td><td>13.14%</td><td><span class="metric warn">14.04%</span></td><td><span class="delta bad-text">-0.90</span></td><td>33.44%</td><td>0.890</td></tr>
+<tr data-id="448c6eb4-86f2-4290-80f4-44186848e2a4" data-der="13.61" data-base_der="14.58" data-delta="0.9700000000000006" data-jer="32.85" data-f1="0.89"><td class="mono">448c6eb4-86f2-4290-80f4-44186848e2a4</td><td>14.58%</td><td><span class="metric warn">13.61%</span></td><td><span class="delta good-text">+0.97</span></td><td>32.85%</td><td>0.890</td></tr>
+<tr data-id="4ea78dd3-4511-4c37-b097-fd439da7963e" data-der="12.96" data-base_der="12.96" data-delta="0.0" data-jer="46.45" data-f1="0.99"><td class="mono">4ea78dd3-4511-4c37-b097-fd439da7963e</td><td>12.96%</td><td><span class="metric warn">12.96%</span></td><td><span class="delta bad-text">0.00</span></td><td>46.45%</td><td>0.990</td></tr>
+<tr data-id="4d1b4dd8-19f3-4b31-b1bf-eac465db1c3b" data-der="11.67" data-base_der="15.99" data-delta="4.32" data-jer="43.01" data-f1="0.96"><td class="mono">4d1b4dd8-19f3-4b31-b1bf-eac465db1c3b</td><td>15.99%</td><td><span class="metric warn">11.67%</span></td><td><span class="delta good-text">+4.32</span></td><td>43.01%</td><td>0.960</td></tr>
+<tr data-id="68545939-70aa-4814-b0b2-6b886a1344d6" data-der="11.29" data-base_der="14.1" data-delta="2.8100000000000005" data-jer="33.23" data-f1="0.89"><td class="mono">68545939-70aa-4814-b0b2-6b886a1344d6</td><td>14.10%</td><td><span class="metric warn">11.29%</span></td><td><span class="delta good-text">+2.81</span></td><td>33.23%</td><td>0.890</td></tr>
+<tr data-id="c31fd5bb-e643-4bdb-b51f-f29519acf02c" data-der="11.28" data-base_der="4.54" data-delta="-6.739999999999999" data-jer="22.28" data-f1="0.97"><td class="mono">c31fd5bb-e643-4bdb-b51f-f29519acf02c</td><td>4.54%</td><td><span class="metric warn">11.28%</span></td><td><span class="delta bad-text">-6.74</span></td><td>22.28%</td><td>0.970</td></tr>
+<tr data-id="4667d69c-3fb1-4c73-8ef1-39f5a1c6e820" data-der="11.05" data-base_der="1.71" data-delta="-9.34" data-jer="28.26" data-f1="0.97"><td class="mono">4667d69c-3fb1-4c73-8ef1-39f5a1c6e820</td><td>1.71%</td><td><span class="metric warn">11.05%</span></td><td><span class="delta bad-text">-9.34</span></td><td>28.26%</td><td>0.970</td></tr>
+<tr data-id="4348d710-8e90-4b51-b5d4-ce8c5b183efa" data-der="10.39" data-base_der="12.82" data-delta="2.4299999999999997" data-jer="31.85" data-f1="0.92"><td class="mono">4348d710-8e90-4b51-b5d4-ce8c5b183efa</td><td>12.82%</td><td><span class="metric warn">10.39%</span></td><td><span class="delta good-text">+2.43</span></td><td>31.85%</td><td>0.920</td></tr>
+<tr data-id="dd110c39-72aa-4aac-838d-448a341d714c" data-der="10.32" data-base_der="12.49" data-delta="2.17" data-jer="33.05" data-f1="0.89"><td class="mono">dd110c39-72aa-4aac-838d-448a341d714c</td><td>12.49%</td><td><span class="metric warn">10.32%</span></td><td><span class="delta good-text">+2.17</span></td><td>33.05%</td><td>0.890</td></tr>
+<tr data-id="c761554f-eedc-4cdd-be8b-4e91fa7caca1" data-der="10.23" data-base_der="15.22" data-delta="4.99" data-jer="36.48" data-f1="0.96"><td class="mono">c761554f-eedc-4cdd-be8b-4e91fa7caca1</td><td>15.22%</td><td><span class="metric warn">10.23%</span></td><td><span class="delta good-text">+4.99</span></td><td>36.48%</td><td>0.960</td></tr>
+<tr data-id="720b1b64-566f-40aa-a829-95e6eb04a449" data-der="10.08" data-base_der="12.08" data-delta="2.0" data-jer="47.98" data-f1="0.96"><td class="mono">720b1b64-566f-40aa-a829-95e6eb04a449</td><td>12.08%</td><td><span class="metric warn">10.08%</span></td><td><span class="delta good-text">+2.00</span></td><td>47.98%</td><td>0.960</td></tr>
+<tr data-id="0d8705f5-2304-4061-ab49-82cf5b6293b3" data-der="9.33" data-base_der="39.65" data-delta="30.32" data-jer="17.87" data-f1="0.94"><td class="mono">0d8705f5-2304-4061-ab49-82cf5b6293b3</td><td>39.65%</td><td><span class="metric good">9.33%</span></td><td><span class="delta good-text">+30.32</span></td><td>17.87%</td><td>0.940</td></tr>
+<tr data-id="4e50e3ed-8fdb-410d-a4c9-9addaae9091a" data-der="8.82" data-base_der="9.03" data-delta="0.20999999999999908" data-jer="31.95" data-f1="0.91"><td class="mono">4e50e3ed-8fdb-410d-a4c9-9addaae9091a</td><td>9.03%</td><td><span class="metric good">8.82%</span></td><td><span class="delta good-text">+0.21</span></td><td>31.95%</td><td>0.910</td></tr>
+<tr data-id="6e1e01cc-5fe4-4eb0-adff-de895523c495" data-der="8.4" data-base_der="18.2" data-delta="9.799999999999999" data-jer="30.56" data-f1="0.9"><td class="mono">6e1e01cc-5fe4-4eb0-adff-de895523c495</td><td>18.20%</td><td><span class="metric good">8.40%</span></td><td><span class="delta good-text">+9.80</span></td><td>30.56%</td><td>0.900</td></tr>
+<tr data-id="2472d9eb-1b40-4c50-b80a-9eeb46a7ebff" data-der="8.22" data-base_der="25.24" data-delta="17.019999999999996" data-jer="28.29" data-f1="0.94"><td class="mono">2472d9eb-1b40-4c50-b80a-9eeb46a7ebff</td><td>25.24%</td><td><span class="metric good">8.22%</span></td><td><span class="delta good-text">+17.02</span></td><td>28.29%</td><td>0.940</td></tr>
+<tr data-id="c86ba699-041b-4fa8-81b9-2a1e73f7ca1a" data-der="8.21" data-base_der="9.91" data-delta="1.6999999999999993" data-jer="31.41" data-f1="0.91"><td class="mono">c86ba699-041b-4fa8-81b9-2a1e73f7ca1a</td><td>9.91%</td><td><span class="metric good">8.21%</span></td><td><span class="delta good-text">+1.70</span></td><td>31.41%</td><td>0.910</td></tr>
+<tr data-id="94b0d048-6581-4679-b157-42b96b78dc3d" data-der="7.72" data-base_der="9.98" data-delta="2.2600000000000007" data-jer="17.94" data-f1="0.92"><td class="mono">94b0d048-6581-4679-b157-42b96b78dc3d</td><td>9.98%</td><td><span class="metric good">7.72%</span></td><td><span class="delta good-text">+2.26</span></td><td>17.94%</td><td>0.920</td></tr>
+<tr data-id="54888d4f-c9c0-43c4-aa95-c8cb17886ba7" data-der="7.01" data-base_der="8.04" data-delta="1.0299999999999994" data-jer="7.39" data-f1="0.92"><td class="mono">54888d4f-c9c0-43c4-aa95-c8cb17886ba7</td><td>8.04%</td><td><span class="metric good">7.01%</span></td><td><span class="delta good-text">+1.03</span></td><td>7.39%</td><td>0.920</td></tr>
+<tr data-id="38a7d01d-d584-4a1b-ad39-e669b049352c" data-der="6.99" data-base_der="13.87" data-delta="6.879999999999999" data-jer="28.95" data-f1="0.92"><td class="mono">38a7d01d-d584-4a1b-ad39-e669b049352c</td><td>13.87%</td><td><span class="metric good">6.99%</span></td><td><span class="delta good-text">+6.88</span></td><td>28.95%</td><td>0.920</td></tr>
+<tr data-id="326c342b-7ec9-4bac-9528-720122445530" data-der="6.82" data-base_der="8.87" data-delta="2.049999999999999" data-jer="31.6" data-f1="0.89"><td class="mono">326c342b-7ec9-4bac-9528-720122445530</td><td>8.87%</td><td><span class="metric good">6.82%</span></td><td><span class="delta good-text">+2.05</span></td><td>31.60%</td><td>0.890</td></tr>
+<tr data-id="2ddce0d5-cd84-489a-90dd-1437ed1de028" data-der="6.58" data-base_der="9.33" data-delta="2.75" data-jer="29.76" data-f1="0.92"><td class="mono">2ddce0d5-cd84-489a-90dd-1437ed1de028</td><td>9.33%</td><td><span class="metric good">6.58%</span></td><td><span class="delta good-text">+2.75</span></td><td>29.76%</td><td>0.920</td></tr>
+<tr data-id="aeb67ad1-88e3-45fd-b0c3-79bf6f8bea5a" data-der="6.48" data-base_der="9.65" data-delta="3.17" data-jer="36.76" data-f1="0.91"><td class="mono">aeb67ad1-88e3-45fd-b0c3-79bf6f8bea5a</td><td>9.65%</td><td><span class="metric good">6.48%</span></td><td><span class="delta good-text">+3.17</span></td><td>36.76%</td><td>0.910</td></tr>
+<tr data-id="de1fab73-5933-4b1f-81cc-cd515e9cc48d" data-der="5.78" data-base_der="15.14" data-delta="9.36" data-jer="29.21" data-f1="0.96"><td class="mono">de1fab73-5933-4b1f-81cc-cd515e9cc48d</td><td>15.14%</td><td><span class="metric good">5.78%</span></td><td><span class="delta good-text">+9.36</span></td><td>29.21%</td><td>0.960</td></tr>
+<tr data-id="f28d3d49-fe4d-4ae8-b1d4-f3953883f8ad" data-der="4.21" data-base_der="5.53" data-delta="1.3200000000000003" data-jer="13.31" data-f1="0.94"><td class="mono">f28d3d49-fe4d-4ae8-b1d4-f3953883f8ad</td><td>5.53%</td><td><span class="metric good">4.21%</span></td><td><span class="delta good-text">+1.32</span></td><td>13.31%</td><td>0.940</td></tr>
+<tr data-id="a0e8bed5-cdef-4e4e-bbc7-8162d120ac19" data-der="4.15" data-base_der="8.48" data-delta="4.33" data-jer="9.84" data-f1="0.95"><td class="mono">a0e8bed5-cdef-4e4e-bbc7-8162d120ac19</td><td>8.48%</td><td><span class="metric good">4.15%</span></td><td><span class="delta good-text">+4.33</span></td><td>9.84%</td><td>0.950</td></tr>
+<tr data-id="2a3d877b-55d4-4cf0-b1fd-d97a14b73c3e" data-der="3.89" data-base_der="5.42" data-delta="1.5299999999999998" data-jer="7.95" data-f1="0.97"><td class="mono">2a3d877b-55d4-4cf0-b1fd-d97a14b73c3e</td><td>5.42%</td><td><span class="metric good">3.89%</span></td><td><span class="delta good-text">+1.53</span></td><td>7.95%</td><td>0.970</td></tr>
+<tr data-id="ef67859e-db59-4c9e-a253-cc18a5cc87b0" data-der="3.8" data-base_der="16.67" data-delta="12.870000000000001" data-jer="5.98" data-f1="0.92"><td class="mono">ef67859e-db59-4c9e-a253-cc18a5cc87b0</td><td>16.67%</td><td><span class="metric good">3.80%</span></td><td><span class="delta good-text">+12.87</span></td><td>5.98%</td><td>0.920</td></tr>
+<tr data-id="4a1be279-3290-4701-b003-bc7683e910d2" data-der="3.67" data-base_der="6.74" data-delta="3.0700000000000003" data-jer="5.59" data-f1="0.92"><td class="mono">4a1be279-3290-4701-b003-bc7683e910d2</td><td>6.74%</td><td><span class="metric good">3.67%</span></td><td><span class="delta good-text">+3.07</span></td><td>5.59%</td><td>0.920</td></tr>
+<tr data-id="702c6f21-907d-4018-90b9-81c810917cd8" data-der="3.12" data-base_der="7.85" data-delta="4.7299999999999995" data-jer="6.47" data-f1="0.92"><td class="mono">702c6f21-907d-4018-90b9-81c810917cd8</td><td>7.85%</td><td><span class="metric good">3.12%</span></td><td><span class="delta good-text">+4.73</span></td><td>6.47%</td><td>0.920</td></tr>
+<tr data-id="e29cd866-f131-41d0-88a0-15da1cb273e7" data-der="2.86" data-base_der="6.41" data-delta="3.5500000000000003" data-jer="16.42" data-f1="0.95"><td class="mono">e29cd866-f131-41d0-88a0-15da1cb273e7</td><td>6.41%</td><td><span class="metric good">2.86%</span></td><td><span class="delta good-text">+3.55</span></td><td>16.42%</td><td>0.950</td></tr>
+<tr data-id="99db6fb5-790d-4ea5-9542-cc2135ce1535" data-der="2.5" data-base_der="3.54" data-delta="1.04" data-jer="27.56" data-f1="0.96"><td class="mono">99db6fb5-790d-4ea5-9542-cc2135ce1535</td><td>3.54%</td><td><span class="metric good">2.50%</span></td><td><span class="delta good-text">+1.04</span></td><td>27.56%</td><td>0.960</td></tr>
+<tr data-id="778d3032-f0cf-4589-81ad-3c120d39c4b9" data-der="2.33" data-base_der="24.25" data-delta="21.92" data-jer="12.85" data-f1="0.94"><td class="mono">778d3032-f0cf-4589-81ad-3c120d39c4b9</td><td>24.25%</td><td><span class="metric good">2.33%</span></td><td><span class="delta good-text">+21.92</span></td><td>12.85%</td><td>0.940</td></tr>
+<tr data-id="f400bb06-786c-4b70-b1f0-3914af9291f3" data-der="2.04" data-base_der="3.29" data-delta="1.25" data-jer="4.02" data-f1="0.93"><td class="mono">f400bb06-786c-4b70-b1f0-3914af9291f3</td><td>3.29%</td><td><span class="metric good">2.04%</span></td><td><span class="delta good-text">+1.25</span></td><td>4.02%</td><td>0.930</td></tr>
+<tr data-id="0ce97c29-0c09-4a89-bf0f-b8afbc9c6d03" data-der="1.77" data-base_der="8.25" data-delta="6.48" data-jer="8.88" data-f1="0.97"><td class="mono">0ce97c29-0c09-4a89-bf0f-b8afbc9c6d03</td><td>8.25%</td><td><span class="metric good">1.77%</span></td><td><span class="delta good-text">+6.48</span></td><td>8.88%</td><td>0.970</td></tr>
+<tr data-id="9dc43c91-89c0-42ff-ab13-e8f62867df91" data-der="0.93" data-base_der="2.68" data-delta="1.75" data-jer="5.61" data-f1="0.98"><td class="mono">9dc43c91-89c0-42ff-ab13-e8f62867df91</td><td>2.68%</td><td><span class="metric good">0.93%</span></td><td><span class="delta good-text">+1.75</span></td><td>5.61%</td><td>0.980</td></tr>
+<tr data-id="072c8fd1-21f0-4041-91ce-598ff298994e" data-der="0.84" data-base_der="2.05" data-delta="1.21" data-jer="1.69" data-f1="0.98"><td class="mono">072c8fd1-21f0-4041-91ce-598ff298994e</td><td>2.05%</td><td><span class="metric good">0.84%</span></td><td><span class="delta good-text">+1.21</span></td><td>1.69%</td><td>0.980</td></tr>
+<tr data-id="fcd0e16a-f043-4b21-b53b-48a202f554f4" data-der="0.61" data-base_der="16.29" data-delta="15.68" data-jer="1.58" data-f1="0.96"><td class="mono">fcd0e16a-f043-4b21-b53b-48a202f554f4</td><td>16.29%</td><td><span class="metric good">0.61%</span></td><td><span class="delta good-text">+15.68</span></td><td>1.58%</td><td>0.960</td></tr>
+<tr data-id="e2ff7ebd-9f16-4703-887c-97c3e44e61b6" data-der="0.21" data-base_der="7.99" data-delta="7.78" data-jer="1.03" data-f1="0.98"><td class="mono">e2ff7ebd-9f16-4703-887c-97c3e44e61b6</td><td>7.99%</td><td><span class="metric good">0.21%</span></td><td><span class="delta good-text">+7.78</span></td><td>1.03%</td><td>0.980</td></tr>
+<tr data-id="ad785ac5-5a6a-42b9-b904-c249e30ac6ea" data-der="0.07" data-base_der="20.08" data-delta="20.009999999999998" data-jer="0.99" data-f1="0.98"><td class="mono">ad785ac5-5a6a-42b9-b904-c249e30ac6ea</td><td>20.08%</td><td><span class="metric good">0.07%</span></td><td><span class="delta good-text">+20.01</span></td><td>0.99%</td><td>0.980</td></tr>
+<tr data-id="0951810f-3628-47ee-a517-06bdc90620fa" data-der="0.0" data-base_der="4.26" data-delta="4.26" data-jer="0.57" data-f1="0.99"><td class="mono">0951810f-3628-47ee-a517-06bdc90620fa</td><td>4.26%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+4.26</span></td><td>0.57%</td><td>0.990</td></tr>
+<tr data-id="0e5e42a3-a782-4c3a-9694-7819aa63b047" data-der="0.0" data-base_der="1.79" data-delta="1.79" data-jer="0.41" data-f1="0.99"><td class="mono">0e5e42a3-a782-4c3a-9694-7819aa63b047</td><td>1.79%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+1.79</span></td><td>0.41%</td><td>0.990</td></tr>
+<tr data-id="13f469c7-ece4-483d-b5b4-8261256ca4ba" data-der="0.0" data-base_der="0.14" data-delta="0.14" data-jer="0.56" data-f1="0.98"><td class="mono">13f469c7-ece4-483d-b5b4-8261256ca4ba</td><td>0.14%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.14</span></td><td>0.56%</td><td>0.980</td></tr>
+<tr data-id="15784b1c-48e7-422c-b886-00284b204b52" data-der="0.0" data-base_der="8.71" data-delta="8.71" data-jer="0.41" data-f1="0.99"><td class="mono">15784b1c-48e7-422c-b886-00284b204b52</td><td>8.71%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+8.71</span></td><td>0.41%</td><td>0.990</td></tr>
+<tr data-id="1626e8ee-f618-48a3-81eb-78f31d78a2c2" data-der="0.0" data-base_der="0.27" data-delta="0.27" data-jer="0.12" data-f1="1.0"><td class="mono">1626e8ee-f618-48a3-81eb-78f31d78a2c2</td><td>0.27%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.27</span></td><td>0.12%</td><td>1.000</td></tr>
+<tr data-id="16c7567c-6d3a-4f6b-ba97-fe48d1308269" data-der="0.0" data-base_der="0.34" data-delta="0.34" data-jer="0.29" data-f1="0.99"><td class="mono">16c7567c-6d3a-4f6b-ba97-fe48d1308269</td><td>0.34%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.34</span></td><td>0.29%</td><td>0.990</td></tr>
+<tr data-id="1fbed0ac-f343-4ace-87b6-02435ca5e10b" data-der="0.0" data-base_der="12.89" data-delta="12.89" data-jer="0.32" data-f1="0.99"><td class="mono">1fbed0ac-f343-4ace-87b6-02435ca5e10b</td><td>12.89%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+12.89</span></td><td>0.32%</td><td>0.990</td></tr>
+<tr data-id="25f8087b-a67d-46f9-b45f-a052ad2a7f3b" data-der="0.0" data-base_der="0.0" data-delta="0.0" data-jer="0.36" data-f1="0.99"><td class="mono">25f8087b-a67d-46f9-b45f-a052ad2a7f3b</td><td>0.00%</td><td><span class="metric good">0.00%</span></td><td><span class="delta bad-text">0.00</span></td><td>0.36%</td><td>0.990</td></tr>
+<tr data-id="2af07e9a-4d0b-4e26-abe8-cc244ac03a33" data-der="0.0" data-base_der="0.0" data-delta="0.0" data-jer="0.39" data-f1="0.99"><td class="mono">2af07e9a-4d0b-4e26-abe8-cc244ac03a33</td><td>0.00%</td><td><span class="metric good">0.00%</span></td><td><span class="delta bad-text">0.00</span></td><td>0.39%</td><td>0.990</td></tr>
+<tr data-id="3a651973-5fa7-4509-a035-5b8ffa57a978" data-der="0.0" data-base_der="16.22" data-delta="16.22" data-jer="0.35" data-f1="0.99"><td class="mono">3a651973-5fa7-4509-a035-5b8ffa57a978</td><td>16.22%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+16.22</span></td><td>0.35%</td><td>0.990</td></tr>
+<tr data-id="3b2b6e7e-f8fb-48a5-9a25-ea2acbe1c856" data-der="0.0" data-base_der="4.84" data-delta="4.84" data-jer="0.19" data-f1="0.99"><td class="mono">3b2b6e7e-f8fb-48a5-9a25-ea2acbe1c856</td><td>4.84%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+4.84</span></td><td>0.19%</td><td>0.990</td></tr>
+<tr data-id="3f832c7b-169b-4e25-b8dc-46dc3633ae21" data-der="0.0" data-base_der="0.22" data-delta="0.22" data-jer="2.2" data-f1="0.98"><td class="mono">3f832c7b-169b-4e25-b8dc-46dc3633ae21</td><td>0.22%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.22</span></td><td>2.20%</td><td>0.980</td></tr>
+<tr data-id="400c3580-4c0a-4c0f-baf0-0e1eda385226" data-der="0.0" data-base_der="1.49" data-delta="1.49" data-jer="0.5" data-f1="0.99"><td class="mono">400c3580-4c0a-4c0f-baf0-0e1eda385226</td><td>1.49%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+1.49</span></td><td>0.50%</td><td>0.990</td></tr>
+<tr data-id="470e29df-3d96-44df-b0a8-cbb5b21b6649" data-der="0.0" data-base_der="4.84" data-delta="4.84" data-jer="0.32" data-f1="0.99"><td class="mono">470e29df-3d96-44df-b0a8-cbb5b21b6649</td><td>4.84%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+4.84</span></td><td>0.32%</td><td>0.990</td></tr>
+<tr data-id="5387324f-aca4-4986-a4cd-51e6aa06b58d" data-der="0.0" data-base_der="0.4" data-delta="0.4" data-jer="0.51" data-f1="0.99"><td class="mono">5387324f-aca4-4986-a4cd-51e6aa06b58d</td><td>0.40%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.40</span></td><td>0.51%</td><td>0.990</td></tr>
+<tr data-id="58152b01-cc38-451b-aa67-533f3cf3d2b3" data-der="0.0" data-base_der="20.9" data-delta="20.9" data-jer="0.76" data-f1="0.98"><td class="mono">58152b01-cc38-451b-aa67-533f3cf3d2b3</td><td>20.90%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+20.90</span></td><td>0.76%</td><td>0.980</td></tr>
+<tr data-id="6086f333-c7f3-46eb-96d7-b6a35856f3ab" data-der="0.0" data-base_der="5.58" data-delta="5.58" data-jer="0.88" data-f1="0.98"><td class="mono">6086f333-c7f3-46eb-96d7-b6a35856f3ab</td><td>5.58%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+5.58</span></td><td>0.88%</td><td>0.980</td></tr>
+<tr data-id="6c07687e-fd09-4c2b-8dae-679833f9376a" data-der="0.0" data-base_der="1.8" data-delta="1.8" data-jer="0.86" data-f1="0.98"><td class="mono">6c07687e-fd09-4c2b-8dae-679833f9376a</td><td>1.80%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+1.80</span></td><td>0.86%</td><td>0.980</td></tr>
+<tr data-id="758dde4e-8e22-47c8-8da1-1923852e442f" data-der="0.0" data-base_der="1.56" data-delta="1.56" data-jer="0.51" data-f1="0.99"><td class="mono">758dde4e-8e22-47c8-8da1-1923852e442f</td><td>1.56%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+1.56</span></td><td>0.51%</td><td>0.990</td></tr>
+<tr data-id="75ade640-d9dc-4f82-80ee-e4d0dd3d6aee" data-der="0.0" data-base_der="4.7" data-delta="4.7" data-jer="0.37" data-f1="0.99"><td class="mono">75ade640-d9dc-4f82-80ee-e4d0dd3d6aee</td><td>4.70%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+4.70</span></td><td>0.37%</td><td>0.990</td></tr>
+<tr data-id="78abb714-25d3-489f-b820-0891b6106733" data-der="0.0" data-base_der="5.46" data-delta="5.46" data-jer="0.89" data-f1="0.98"><td class="mono">78abb714-25d3-489f-b820-0891b6106733</td><td>5.46%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+5.46</span></td><td>0.89%</td><td>0.980</td></tr>
+<tr data-id="7ad77bd2-e3bd-4914-bc22-06aa6674f8a1" data-der="0.0" data-base_der="0.0" data-delta="0.0" data-jer="0.29" data-f1="0.99"><td class="mono">7ad77bd2-e3bd-4914-bc22-06aa6674f8a1</td><td>0.00%</td><td><span class="metric good">0.00%</span></td><td><span class="delta bad-text">0.00</span></td><td>0.29%</td><td>0.990</td></tr>
+<tr data-id="7d0d182b-eac1-40e1-82d5-3c64ab4d2165" data-der="0.0" data-base_der="21.57" data-delta="21.57" data-jer="0.68" data-f1="0.99"><td class="mono">7d0d182b-eac1-40e1-82d5-3c64ab4d2165</td><td>21.57%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+21.57</span></td><td>0.68%</td><td>0.990</td></tr>
+<tr data-id="96f867c3-b1b8-4c04-b766-48f09c8fbba9" data-der="0.0" data-base_der="12.67" data-delta="12.67" data-jer="0.64" data-f1="0.99"><td class="mono">96f867c3-b1b8-4c04-b766-48f09c8fbba9</td><td>12.67%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+12.67</span></td><td>0.64%</td><td>0.990</td></tr>
+<tr data-id="9eae1b62-c194-4098-bcf3-905522ddc466" data-der="0.0" data-base_der="17.04" data-delta="17.04" data-jer="0.39" data-f1="0.99"><td class="mono">9eae1b62-c194-4098-bcf3-905522ddc466</td><td>17.04%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+17.04</span></td><td>0.39%</td><td>0.990</td></tr>
+<tr data-id="a846648a-6a49-493b-b95e-84e86a257a6f" data-der="0.0" data-base_der="1.2" data-delta="1.2" data-jer="0.71" data-f1="0.99"><td class="mono">a846648a-6a49-493b-b95e-84e86a257a6f</td><td>1.20%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+1.20</span></td><td>0.71%</td><td>0.990</td></tr>
+<tr data-id="a90f6d8b-46df-42eb-85b2-b2b6dcdd9045" data-der="0.0" data-base_der="0.0" data-delta="0.0" data-jer="0.95" data-f1="0.99"><td class="mono">a90f6d8b-46df-42eb-85b2-b2b6dcdd9045</td><td>0.00%</td><td><span class="metric good">0.00%</span></td><td><span class="delta bad-text">0.00</span></td><td>0.95%</td><td>0.990</td></tr>
+<tr data-id="b0fd2b4a-b2e8-4c3c-a546-92645e85749e" data-der="0.0" data-base_der="2.63" data-delta="2.63" data-jer="0.48" data-f1="0.99"><td class="mono">b0fd2b4a-b2e8-4c3c-a546-92645e85749e</td><td>2.63%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+2.63</span></td><td>0.48%</td><td>0.990</td></tr>
+<tr data-id="b3c9c8c4-dd2d-415d-a1a8-5e7533a02e07" data-der="0.0" data-base_der="0.97" data-delta="0.97" data-jer="0.82" data-f1="0.98"><td class="mono">b3c9c8c4-dd2d-415d-a1a8-5e7533a02e07</td><td>0.97%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.97</span></td><td>0.82%</td><td>0.980</td></tr>
+<tr data-id="c7968356-fa5c-41f8-bdde-5471bec82304" data-der="0.0" data-base_der="20.17" data-delta="20.17" data-jer="2.85" data-f1="0.97"><td class="mono">c7968356-fa5c-41f8-bdde-5471bec82304</td><td>20.17%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+20.17</span></td><td>2.85%</td><td>0.970</td></tr>
+<tr data-id="c7c509c2-5013-4267-8976-c6512212d404" data-der="0.0" data-base_der="8.25" data-delta="8.25" data-jer="0.48" data-f1="0.99"><td class="mono">c7c509c2-5013-4267-8976-c6512212d404</td><td>8.25%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+8.25</span></td><td>0.48%</td><td>0.990</td></tr>
+<tr data-id="cb9018b5-4542-424f-89eb-5636e552e6dd" data-der="0.0" data-base_der="5.18" data-delta="5.18" data-jer="0.37" data-f1="0.99"><td class="mono">cb9018b5-4542-424f-89eb-5636e552e6dd</td><td>5.18%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+5.18</span></td><td>0.37%</td><td>0.990</td></tr>
+<tr data-id="d27612e6-7945-42cb-899b-1c37cd80c084" data-der="0.0" data-base_der="0.7" data-delta="0.7" data-jer="1.09" data-f1="0.98"><td class="mono">d27612e6-7945-42cb-899b-1c37cd80c084</td><td>0.70%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+0.70</span></td><td>1.09%</td><td>0.980</td></tr>
+<tr data-id="e2a09ea3-a1c7-4d99-8fe5-66f2e81bf3af" data-der="0.0" data-base_der="23.21" data-delta="23.21" data-jer="0.87" data-f1="0.98"><td class="mono">e2a09ea3-a1c7-4d99-8fe5-66f2e81bf3af</td><td>23.21%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+23.21</span></td><td>0.87%</td><td>0.980</td></tr>
+<tr data-id="e521e7f3-59b0-4483-a39d-f36436d2f1ec" data-der="0.0" data-base_der="3.86" data-delta="3.86" data-jer="0.44" data-f1="0.99"><td class="mono">e521e7f3-59b0-4483-a39d-f36436d2f1ec</td><td>3.86%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+3.86</span></td><td>0.44%</td><td>0.990</td></tr>
+<tr data-id="f27e451c-7489-49b9-b823-550fae99abe4" data-der="0.0" data-base_der="2.66" data-delta="2.66" data-jer="0.37" data-f1="0.99"><td class="mono">f27e451c-7489-49b9-b823-550fae99abe4</td><td>2.66%</td><td><span class="metric good">0.00%</span></td><td><span class="delta good-text">+2.66</span></td><td>0.37%</td><td>0.990</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h3>Training configuration</h3>
+        <table class="data-table">
+          <tbody>
+            <tr><td>Base model</td><td class="mono">BUT-FIT/diarizen-wavlm-large-s80-md-v2</td></tr>
+            <tr><td>WavLM</td><td>Frozen; 25 layers, 1024-d, 80% pruned</td></tr>
+            <tr><td>Chunk / shift</td><td>16 s / 12 s train, 16 s / 16 s validation</td></tr>
+            <tr><td>Batch</td><td>1 train x 4 grad accumulation; 2 validation</td></tr>
+            <tr><td>Optimizer</td><td>AdamW, conformer lr 1e-3, frozen-WavLM lr 2e-5</td></tr>
+            <tr><td>Epochs</td><td>8 max, patience 8; best epoch 8</td></tr>
+            <tr><td>Checkpoint rule</td><td>Lowest validation NLL loss (<span class="mono">save_max_score=false</span>)</td></tr>
+            <tr><td>Inference</td><td>Exported best checkpoint; batch 2; 82 files</td></tr>
+            <tr><td>Scoring</td><td>dscore, collar 0.25 s, full UEM</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h3>Data split</h3>
+        
+      <table class="data-table">
+        <thead>
+          <tr><th>Split</th><th>Meetings</th><th>Hours</th><th>Speakers</th><th>Source cuts</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Train</td><td>6207</td><td>117.176</td><td>16</td><td>49,542</td></tr>
+          <tr><td>Dev</td><td>611</td><td>11.497</td><td>17</td><td>5,511</td></tr>
+          <tr><td>Test</td><td>82</td><td>1.699</td><td>16</td><td>604</td></tr>
+        </tbody>
+      </table>
+      <p class="muted small">
+        Leakage checks: 0 designated test speakers in train meetings,
+        0 designated dev speakers in train meetings.
+        Source-cut overlap remains: 39 train/test and
+        451 train/dev.
+      </p>
+    
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h3>Where the artifacts are</h3>
+        <div class="artifact-list">
+          <div class="artifact"><div><code><a href="runs_full/scores/finetuned_holdout/score.txt">runs_full/scores/finetuned_holdout/score.txt</a></code><br><span>Fine-tuned per-file table and overall row.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/scores/finetuned_holdout/metrics.json">runs_full/scores/finetuned_holdout/metrics.json</a></code><br><span>Machine-readable fine-tuned DER summary.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/scores/baseline_holdout/score.txt">runs_full/scores/baseline_holdout/score.txt</a></code><br><span>Baseline score table used for the comparison.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/finetuned/khmer_finetune_holdout/">runs_full/finetuned/khmer_finetune_holdout/</a></code><br><span>82 fine-tuned predicted RTTM files.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/exported/khmer_finetune_holdout/">runs_full/exported/khmer_finetune_holdout/</a></code><br><span>Exported inference model with the best checkpoint.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/exp/khmer_finetune_holdout/checkpoints/best/">runs_full/exp/khmer_finetune_holdout/checkpoints/best/</a></code><br><span>Best checkpoint (epoch 8) and optimizer state.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/exp/khmer_finetune_holdout/">runs_full/exp/khmer_finetune_holdout/</a></code><br><span>Training and validation logs from the original and resumed runs.</span></div></div>
+          <div class="artifact"><div><code><a href="runs_full/configs/khmer_finetune_holdout.toml">runs_full/configs/khmer_finetune_holdout.toml</a></code><br><span>Rendered training config.</span></div></div>
+          <div class="artifact"><div><code><a href="artifacts/dev_demo/index.html">artifacts/dev_demo/index.html</a></code><br><span>Playable 10-meeting dev demo with fine-tuned, baseline, and reference timelines (4.24% vs 5.68% DER on the 10 files).</span></div></div>
+          <div class="artifact"><div><code><a href="report.html">report.html</a></code><br><span>Original baseline report; preserved unchanged.</span></div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Reproduce</h3>
+        <pre>python run_oneshot.py --stages export score --data-dir data/diarizen/khmer_full --runs-dir runs_full --infer-batch-size 2 --yes
+python build_finetune_report.py</pre>
+        <h3 style="margin-top:18px">Caveats</h3>
+        <ul class="clean">
+          <li>Simulated clean read-speech, not real Khmer conversation; domain transfer is still unproven.</li>
+          <li>Only 16-17 speakers per split; a small set of source speakers dominates the data.</li>
+          <li>Source-cut overlap remains: 39 train/test and 451 train/dev cuts.</li>
+          <li>Only the EEND segmentation model was adapted; embedding and PLDA remain domain-mismatched.</li>
+          <li>All 8 epochs completed; the best checkpoint (epoch 8) was selected by validation loss, not test DER.</li>
+          <li>Model CC BY-NC 4.0; corpus CC BY-SA 4.0. No release without legal review.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Generated 2026-10-24 11:26 &middot; DiariZen Khmer one-shot pilot &middot; baseline and fine-tuned metrics from dscore.
+  </footer>
+</div>
+
+<script>
+  const table = document.getElementById('files');
+  const tbody = table.tBodies[0];
+  const search = document.getElementById('search');
+
+  search.addEventListener('input', () => {
+    const query = search.value.trim().toLowerCase();
+    for (const row of tbody.rows) {
+      row.style.display = row.dataset.id.toLowerCase().includes(query) ? '' : 'none';
+    }
+  });
+
+  let sortState = { key: 'der', direction: -1 };
+  table.querySelectorAll('th').forEach((th) => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      const numeric = key !== 'id';
+      if (sortState.key === key) sortState.direction *= -1;
+      else sortState = { key, direction: key === 'id' ? 1 : -1 };
+
+      const rows = Array.from(tbody.rows);
+      rows.sort((a, b) => {
+        const av = numeric ? Number(a.dataset[key]) : a.dataset[key];
+        const bv = numeric ? Number(b.dataset[key]) : b.dataset[key];
+        if (av < bv) return -1 * sortState.direction;
+        if (av > bv) return 1 * sortState.direction;
+        return 0;
+      });
+      for (const row of rows) tbody.appendChild(row);
+    });
+  });
+</script>
+</body>
+</html>

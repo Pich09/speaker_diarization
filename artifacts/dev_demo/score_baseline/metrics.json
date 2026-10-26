@@ -1,0 +1,10 @@
+{
+  "der": 5.68,
+  "collar": 0.25,
+  "ignore_overlaps": false,
+  "num_ref": 10,
+  "num_sys": 10,
+  "num_scored": 10,
+  "missing_sys": [],
+  "extra_sys": []
+}

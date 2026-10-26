@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Khmer Diarization Demo - 10 Dev Meetings</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #121a31;
+    --panel-2: #17213d;
+    --line: #2a3658;
+    --text: #e8edf8;
+    --muted: #9aa8c7;
+    --accent: #6ea8ff;
+    --good: #3ddc97;
+    --warn: #ffbf69;
+    --bad: #ff6b81;
+    --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--text);
+    background:
+      radial-gradient(900px 500px at 8% -10%, rgba(110,168,255,.20), transparent 60%),
+      radial-gradient(800px 500px at 100% 0%, rgba(139,124,255,.16), transparent 55%),
+      var(--bg);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.55;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+  header { padding: 52px 0 24px; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 4px rgba(61,220,151,.14); }
+  h1 { margin: 12px 0 10px; font-size: clamp(32px, 5vw, 56px); line-height: 1.05; letter-spacing: -0.03em; }
+  h1 span { color: var(--accent); }
+  .lede { max-width: 920px; color: var(--muted); font-size: 17px; margin: 0; }
+  .lede code { color: var(--text); }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .badge { border: 1px solid var(--line); background: rgba(20,29,54,.75); color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+  .badge.good { color: var(--good); border-color: rgba(61,220,151,.35); background: rgba(61,220,151,.08); }
+  main { padding-bottom: 56px; }
+  section { margin: 24px 0; }
+  .section-head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+  h2 { margin: 0; font-size: 22px; letter-spacing: -0.02em; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+  .cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  .card, .panel { border: 1px solid var(--line); background: linear-gradient(180deg, rgba(23,33,61,.92), rgba(18,26,49,.92)); border-radius: 16px; box-shadow: var(--shadow); }
+  .card { padding: 16px; min-height: 116px; display: flex; flex-direction: column; justify-content: space-between; }
+  .card.primary { border-color: rgba(110,168,255,.55); background: linear-gradient(180deg, rgba(110,168,255,.18), rgba(18,26,49,.92)); }
+  .card.good-card { border-color: rgba(61,220,151,.35); }
+  .card-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .card-value { font-size: 26px; font-weight: 800; letter-spacing: -0.03em; margin: 8px 0 2px; }
+  .card-note { color: var(--muted); font-size: 12px; }
+  .good-text { color: var(--good); }
+  .bad-text { color: var(--bad); }
+  .panel { padding: 20px; }
+  .panel h3 { margin: 0 0 12px; font-size: 16px; }
+  .picker-panel { padding: 16px 18px; }
+  .picker-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .picker-row label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  select {
+    flex: 1 1 460px;
+    min-width: 280px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #0f1730;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+  button.step {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(11,16,32,.55);
+    color: var(--text);
+    padding: 10px 13px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button.step:hover { border-color: var(--accent); }
+  #meetingLabel { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+  .audio-panel { padding: 18px 20px 16px; }
+  .audio-head { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; margin-bottom: 10px; }
+  .audio-head strong { font-size: 16px; }
+  #clock { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+  audio { width: 100%; margin: 6px 0 14px; }
+  .solo-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; padding: 10px 12px; border: 1px solid rgba(61,220,151,.3); border-radius: 12px; background: rgba(61,220,151,.06); }
+  .solo-row label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
+  .solo-select { flex: 1 1 260px; min-width: 180px; border: 1px solid var(--line); border-radius: 10px; background: #0f1730; color: var(--text); padding: 9px 11px; font-size: 13px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .solo-status { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+  button.step.active { border-color: var(--good); color: var(--good); background: rgba(61,220,151,.12); }
+  .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 12px; }
+  .tab { border: 1px solid var(--line); background: rgba(11,16,32,.55); color: var(--muted); border-radius: 999px; padding: 8px 13px; font-size: 13px; cursor: pointer; }
+  .tab:hover { color: var(--text); border-color: rgba(110,168,255,.5); }
+  .tab.active { color: var(--text); border-color: var(--accent); background: rgba(110,168,255,.14); }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; min-height: 26px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: rgba(11,16,32,.35); border-radius: 999px; padding: 4px 9px; font-size: 12px; color: var(--muted); }
+  .chip i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .timeline-body { position: relative; border: 1px solid var(--line); border-radius: 14px; background: rgba(5,9,20,.35); padding: 10px 12px 12px; }
+  .ruler { position: relative; height: 22px; margin-left: 100px; color: var(--muted); font-size: 11px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  .tick { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+  .tick::after { content: ""; position: absolute; left: 50%; top: 16px; width: 1px; height: 5px; background: var(--line); }
+  .wave-wrap { position: relative; margin-left: 100px; height: 80px; border-radius: 8px; background: rgba(110,168,255,.05); overflow: hidden; }
+  .waveform { width: 100%; height: 100%; object-fit: fill; display: block; opacity: .95; }
+  .wave-playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); left: 0; box-shadow: 0 0 8px rgba(110,168,255,.8); pointer-events: none; }
+  .lanes { position: relative; margin-top: 10px; }
+  .lane { display: flex; align-items: center; min-height: 42px; border-top: 1px solid rgba(42,54,88,.55); }
+  .lane:first-child { border-top: 0; }
+  .lane-label { flex: 0 0 100px; width: 100px; color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 7px; }
+  .lane-label i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .lane-track { position: relative; flex: 1; height: 26px; border-radius: 7px; background: rgba(23,33,61,.85); overflow: hidden; cursor: crosshair; }
+  .segment { position: absolute; top: 0; height: 100%; border-radius: 6px; opacity: .78; border: 1px solid rgba(255,255,255,.14); cursor: pointer; transition: opacity .12s ease, transform .12s ease; }
+  .segment:hover { opacity: 1; transform: scaleY(1.08); }
+  .segment.active { opacity: 1; box-shadow: 0 0 0 2px rgba(255,255,255,.75) inset; }
+  .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 8px rgba(110,168,255,.8); pointer-events: none; }
+  .hint { margin: 10px 0 0; color: var(--muted); font-size: 12px; }
+  .grid-2 { display: grid; grid-template-columns: .8fr 1.2fr; gap: 16px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .stat { border: 1px solid var(--line); background: rgba(11,16,32,.35); border-radius: 12px; padding: 11px 12px; }
+  .stat span { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  .stat strong { display: block; font-size: 20px; margin-top: 3px; }
+  .system-title { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+  .system-desc { margin: 4px 0 10px; color: var(--muted); font-size: 13px; }
+  .system-score { margin: 0 0 12px; color: var(--muted); font-size: 13px; }
+  .system-score strong { color: var(--text); }
+  .link-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .link-row a { border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; font-size: 12px; background: rgba(11,16,32,.35); }
+  .table-wrap { max-height: 340px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .meetings-table { max-height: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  th { position: sticky; top: 0; z-index: 2; color: var(--muted); background: #121a31; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: rgba(110,168,255,.07); }
+  tbody tr.selected { background: rgba(110,168,255,.16); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+  .artifact-list { display: grid; gap: 8px; }
+  .artifact { padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: rgba(11,16,32,.3); }
+  .artifact code { color: var(--text); font-size: 12px; word-break: break-all; }
+  .artifact span { color: var(--muted); font-size: 12px; }
+  .callout { border-left: 3px solid var(--accent); background: rgba(110,168,255,.08); border-radius: 0 12px 12px 0; padding: 12px 14px; color: var(--muted); font-size: 13px; }
+  .callout strong { color: var(--text); }
+  ul.clean { margin: 0; padding-left: 20px; color: var(--muted); font-size: 13px; }
+  ul.clean li { margin: 6px 0; }
+  footer { border-top: 1px solid var(--line); padding: 20px 0 38px; color: var(--muted); font-size: 12px; }
+  @media (max-width: 1100px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 980px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid-2 { grid-template-columns: 1fr; } }
+  @media (max-width: 620px) { .wrap { width: min(100% - 24px, 1180px); } .cards { grid-template-columns: 1fr; } .ruler, .wave-wrap { margin-left: 74px; } .lane-label { flex-basis: 74px; width: 74px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow"><span class="dot"></span> Dev audio demo &middot; 10 meetings</div>
+    <h1>Khmer <span>diarization</span> demo</h1>
+    <p class="lede">
+      Ten dev meetings with playable audio, fine-tuned diarization, zero-shot baseline, and reference RTTM.
+      Pick a meeting, switch systems, click the timeline or a segment to seek, and isolate any reference speaker
+      with an exact source stem.
+    </p>
+    <div class="badges">
+      <span class="badge good" id="badgeFine">Fine-tuned 4.24% DER</span>
+      <span class="badge" id="badgeBase">Baseline 5.68% DER</span>
+      <span class="badge" id="badgeSpeakers">3 speakers</span>
+      <span class="badge" id="badgeFiles">10 dev meetings</span>
+      <span class="badge">Collar 0.25 s</span>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <div class="section-head">
+        <h2>10-file dev subset</h2>
+        <p>Overall results on the selected 10 dev meetings; the 82-file test result is separate</p>
+      </div>
+      <div class="cards">
+        <article class="card primary">
+          <div class="card-label">Fine-tuned DER</div>
+          <div class="card-value">4.24%</div>
+          <div class="card-note">JER 14.44% &middot; B3-F1 0.940</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Baseline DER</div>
+          <div class="card-value">5.68%</div>
+          <div class="card-note">JER 16.74% &middot; B3-F1 0.910</div>
+        </article>
+        <article class="card good-card">
+          <div class="card-label">Improvement</div>
+          <div class="card-value good-text">1.44 pt</div>
+          <div class="card-note">fine-tuned minus baseline</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Meetings</div>
+          <div class="card-value">10</div>
+          <div class="card-note">11.2 min of audio</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Total duration</div>
+          <div class="card-value">11.2 min</div>
+          <div class="card-note">10 meetings</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Collar</div>
+          <div class="card-value">0.25s</div>
+          <div class="card-note">DER scoring</div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Select a meeting</h2>
+        <p>All audio and RTTMs are local files in this artifact folder</p>
+      </div>
+      <div class="panel picker-panel">
+        <div class="picker-row">
+          <label for="meetingSelect">Meeting</label>
+          <select id="meetingSelect"></select>
+          <button class="step" id="prevMeeting">Previous</button>
+          <button class="step" id="nextMeeting">Next</button>
+          <span id="meetingLabel"></span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>File at a glance</h2>
+        <p id="fileGlanceNote">Per-file DER on the selected dev meeting</p>
+      </div>
+      <div class="cards">
+        <article class="card primary">
+          <div class="card-label">Fine-tuned DER</div>
+          <div class="card-value" id="cardFineDer">--</div>
+          <div class="card-note" id="cardFineNote">collar 0.25 s</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Baseline DER</div>
+          <div class="card-value" id="cardBaseDer">--</div>
+          <div class="card-note" id="cardBaseNote">collar 0.25 s</div>
+        </article>
+        <article class="card good-card">
+          <div class="card-label">Improvement</div>
+          <div class="card-value good-text" id="cardDelta">--</div>
+          <div class="card-note">fine-tuned minus baseline</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Reference speakers</div>
+          <div class="card-value" id="cardSpeakers">--</div>
+          <div class="card-note" id="cardTurns">-- turns</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Reference speech</div>
+          <div class="card-value" id="cardSpeech">--</div>
+          <div class="card-note">sum of turn durations</div>
+        </article>
+        <article class="card">
+          <div class="card-label">Reference overlap</div>
+          <div class="card-value" id="cardOverlap2">--</div>
+          <div class="card-note" id="cardOverlapPct">--</div>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Audio and timeline</h2>
+        <p>Click a lane to seek; click a segment or table row to jump</p>
+      </div>
+      <div class="panel audio-panel">
+        <div class="audio-head">
+          <strong id="audioTitle">Playable meeting audio</strong>
+          <span id="clock">00:00.0 / 00:00.0</span>
+        </div>
+        <audio id="audio" controls preload="metadata"></audio>
+        <div class="solo-row">
+          <label for="soloSpeaker">Isolate speaker</label>
+          <select id="soloSpeaker" class="solo-select"></select>
+          <button class="step" id="soloToggle" type="button">Play solo</button>
+          <span class="solo-status" id="soloStatus"></span>
+        </div>
+        <div class="tabs" id="tabs">
+          <button class="tab" data-system="finetuned">Fine-tuned</button>
+          <button class="tab" data-system="baseline">Zero-shot baseline</button>
+          <button class="tab" data-system="reference">Reference</button>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="timeline-body">
+          <div class="ruler" id="ruler"></div>
+          <div class="wave-wrap">
+            <img class="waveform" id="waveform" alt="Waveform">
+            <div class="wave-playhead" id="wavePlayhead"></div>
+          </div>
+          <div class="lanes" id="lanes"></div>
+        </div>
+        <p class="hint">Timestamps are in seconds; the playhead follows the audio. Segments in the same time range on different lanes indicate overlap.</p>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h3>Selected system</h3>
+        <div id="systemMeta"></div>
+        <div class="stat-grid" id="systemStats"></div>
+        <div class="link-row" id="systemLinks"></div>
+      </div>
+      <div class="panel">
+        <h3>Segments</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Start</th><th>End</th><th>Duration</th><th>Speaker</th><th>Raw label</th></tr>
+            </thead>
+            <tbody id="segments"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>All dev meetings</h2>
+        <p>Click a row to switch the player and timeline</p>
+      </div>
+      <div class="panel">
+        <div class="table-wrap meetings-table">
+          <table>
+            <thead>
+              <tr><th>Meeting</th><th>Duration</th><th>Speakers</th><th>Fine-tuned DER</th><th>Baseline DER</th><th>Delta</th></tr>
+            </thead>
+            <tbody id="meetingTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="panel">
+        <h3>Artifacts</h3>
+        <div class="artifact-list" id="artifactList"></div>
+      </div>
+      <div class="panel">
+        <h3>Reading the demo</h3>
+        <div class="callout" id="callout"></div>
+        <h3 style="margin-top:18px">Caveats</h3>
+        <ul class="clean">
+          <li>These are 10 dev meetings, not the 82-file test set; per-file DER is noisy.</li>
+          <li>The audio is simulated clean read speech, not real Khmer conversation.</li>
+          <li>Only the segmentation model was fine-tuned; embedding and PLDA are unchanged.</li>
+          <li>Speaker labels in predictions are clusters, not real identities; the mapping is arbitrary.</li>
+          <li>Exact solo stems work only for these synthetic meetings, where the simulator kept the source cuts separate; arbitrary real audio needs a separator and may leak artifacts.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Generated 2026-10-26 22:27 &middot; DiariZen Khmer dev demo &middot; 10 meetings, 11.2 min &middot; audio, waveforms, and RTTMs are local artifact files.
+  </footer>
+</div>
+
+<script>
+  const DEMO = {"generated": "2026-10-26 22:27", "overall": {"finetuned": {"der": 4.24, "jer": 14.44, "b3_f1": 0.94, "files": 10}, "baseline": {"der": 5.68, "jer": 16.74, "b3_f1": 0.91, "files": 10}, "delta": 1.4399999999999995, "meeting_count": 10, "total_duration": 673.7065}, "meetings": [{"id": "00454c79-2580-4435-9deb-d9134c3b0f97", "duration": 61.125125, "durationFmt": "01:01.1", "audio": "audio/00454c79-2580-4435-9deb-d9134c3b0f97.wav", "waveform": "waveforms/00454c79-2580-4435-9deb-d9134c3b0f97.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S3", "raw": "f-adt1-0002", "color": "#ffbf69", "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/f-adt1-0002.wav", "speech": 7.07575, "turns": 1, "rmsDb": -36.754894754248355}, {"id": "S4", "raw": "f-adt1-0005", "color": "#ff6b81", "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/f-adt1-0005.wav", "speech": 16.058, "turns": 2, "rmsDb": -32.87237255622139}, {"id": "S2", "raw": "m-adt1-0003", "color": "#3ddc97", "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/m-adt1-0003.wav", "speech": 19.148375, "turns": 2, "rmsDb": -28.266963307385986}, {"id": "S1", "raw": "m-adt1-0005", "color": "#6ea8ff", "audio": "solo/00454c79-2580-4435-9deb-d9134c3b0f97/m-adt1-0005.wav", "speech": 22.988374999999998, "turns": 3, "rmsDb": -22.14229194628927}], "soloVerification": {"snr_db": 74.51918873760715, "correlation": 0.9999999948255477, "max_abs_residual": 3.052293322980404e-05, "mix_peak": 0.733367919921875}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/00454c79-2580-4435-9deb-d9134c3b0f97.rttm", "segments": [{"start": 0.172, "end": 7.832, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 8.512, "end": 16.912, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.212, "end": 23.292, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 24.133, "end": 31.113, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.433, "end": 35.593, "raw": "1", "speaker": "S4", "color": "#ff6b81"}, {"start": 36.912, "end": 45.272, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 45.832, "end": 54.732, "raw": "1", "speaker": "S4", "color": "#ff6b81"}, {"start": 50.532, "end": 61.172, "raw": "3", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "0", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}, {"id": "S4", "raw": "1", "color": "#ff6b81"}], "stats": {"speakers": 4, "turns": 8, "speech": 65.18, "union": 57.6, "overlap": 7.580000000000002, "overlap_pct": 12.400792636415881}, "score": {"der": 0.0, "jer": 0.95, "b3_f1": 0.98}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/00454c79-2580-4435-9deb-d9134c3b0f97.rttm", "segments": [{"start": 0.512, "end": 7.5120000000000005, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 8.553, "end": 16.793, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.273, "end": 23.273, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 24.152, "end": 31.012, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.573, "end": 35.593, "raw": "1", "speaker": "S4", "color": "#ff6b81"}, {"start": 36.912, "end": 45.292, "raw": "0", "speaker": "S1", "color": "#6ea8ff"}, {"start": 45.892, "end": 54.652, "raw": "1", "speaker": "S4", "color": "#ff6b81"}, {"start": 50.573, "end": 61.033, "raw": "3", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "0", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}, {"id": "S4", "raw": "1", "color": "#ff6b81"}], "stats": {"speakers": 4, "turns": 8, "speech": 63.720000000000006, "union": 56.682, "overlap": 7.038, "overlap_pct": 11.514086883257908}, "score": {"der": 0.51, "jer": 2.27, "b3_f1": 0.95}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/00454c79-2580-4435-9deb-d9134c3b0f97.rttm", "segments": [{"start": 0.0516, "end": 7.848, "raw": "m-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 8.5171, "end": 16.958, "raw": "m-adt1-0003", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.202, "end": 23.277700000000003, "raw": "f-adt1-0002", "speaker": "S3", "color": "#ffbf69"}, {"start": 24.1462, "end": 31.0162, "raw": "m-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.3598, "end": 35.5798, "raw": "f-adt1-0005", "speaker": "S4", "color": "#ff6b81"}, {"start": 36.9064, "end": 45.22839999999999, "raw": "m-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 45.8151, "end": 54.6531, "raw": "f-adt1-0005", "speaker": "S4", "color": "#ff6b81"}, {"start": 50.4177, "end": 61.12520000000001, "raw": "m-adt1-0003", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "m-adt1-0005", "color": "#6ea8ff"}, {"id": "S2", "raw": "m-adt1-0003", "color": "#3ddc97"}, {"id": "S3", "raw": "f-adt1-0002", "color": "#ffbf69"}, {"id": "S4", "raw": "f-adt1-0005", "color": "#ff6b81"}], "stats": {"speakers": 4, "turns": 8, "speech": 65.2705, "union": 57.6227, "overlap": 7.647799999999997, "overlap_pct": 12.511712654984342}, "score": null}}}, {"id": "00716422-f4a1-4a37-8170-d0eb2e110103", "duration": 61.8930625, "durationFmt": "01:01.9", "audio": "audio/00716422-f4a1-4a37-8170-d0eb2e110103.wav", "waveform": "waveforms/00716422-f4a1-4a37-8170-d0eb2e110103.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97", "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/f-adt1-0005.wav", "speech": 8.55, "turns": 1, "rmsDb": -32.94621148758938}, {"id": "S3", "raw": "f-adt2-0002", "color": "#ffbf69", "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/f-adt2-0002.wav", "speech": 13.0, "turns": 2, "rmsDb": -32.65715084683583}, {"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff", "audio": "solo/00716422-f4a1-4a37-8170-d0eb2e110103/m-adt1-0003.wav", "speech": 54.599999999999994, "turns": 6, "rmsDb": -21.823406858257894}], "soloVerification": {"snr_db": 74.07551494304056, "correlation": 0.9999999945370962, "max_abs_residual": 3.0517578125e-05, "mix_peak": 0.557952880859375}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/00716422-f4a1-4a37-8170-d0eb2e110103.rttm", "segments": [{"start": 0.593, "end": 20.733, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 21.372, "end": 36.772, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 31.032, "end": 33.612, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 33.612, "end": 34.912, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 34.912, "end": 35.472, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 35.472, "end": 39.752, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 36.772, "end": 41.452, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 42.213, "end": 49.273, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 42.412, "end": 61.912, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}, {"id": "S3", "raw": "0", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 9, "speech": 75.5, "union": 59.919, "overlap": 15.581000000000007, "overlap_pct": 25.174065348600266}, "score": {"der": 4.96, "jer": 21.88, "b3_f1": 0.92}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/00716422-f4a1-4a37-8170-d0eb2e110103.rttm", "segments": [{"start": 0.633, "end": 12.492999999999999, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 12.832, "end": 20.712, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 21.392, "end": 36.751999999999995, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 31.133, "end": 41.333, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 36.752, "end": 39.612, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 42.272, "end": 49.192, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 42.493, "end": 54.373000000000005, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 54.713, "end": 61.853, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}, {"id": "S3", "raw": "0", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 8, "speech": 74.10000000000001, "union": 58.922000000000004, "overlap": 15.177999999999994, "overlap_pct": 24.52294229260346}, "score": {"der": 7.33, "jer": 31.24, "b3_f1": 0.91}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/00716422-f4a1-4a37-8170-d0eb2e110103.rttm", "segments": [{"start": 0.5917, "end": 20.7332, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 21.3625, "end": 36.796, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 31.0664, "end": 39.6164, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}, {"start": 35.443, "end": 41.433, "raw": "f-adt2-0002", "speaker": "S3", "color": "#ffbf69"}, {"start": 42.2307, "end": 49.2407, "raw": "f-adt2-0002", "speaker": "S3", "color": "#ffbf69"}, {"start": 42.441, "end": 54.42100000000001, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 54.6631, "end": 61.893100000000004, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97"}, {"id": "S3", "raw": "f-adt2-0002", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 7, "speech": 76.33500000000001, "union": 59.63230000000001, "overlap": 15.349699999999991, "overlap_pct": 24.800356259637326}, "score": null}}}, {"id": "00d68569-4281-41b9-9985-df1c026b2ddc", "duration": 68.3121875, "durationFmt": "01:08.3", "audio": "audio/00d68569-4281-41b9-9985-df1c026b2ddc.wav", "waveform": "waveforms/00d68569-4281-41b9-9985-df1c026b2ddc.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S1", "raw": "f-adt1-0002", "color": "#6ea8ff", "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0002.wav", "speech": 31.75, "turns": 4, "rmsDb": -28.555451426224437}, {"id": "S2", "raw": "f-adt1-0004", "color": "#3ddc97", "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0004.wav", "speech": 27.669937500000003, "turns": 4, "rmsDb": -31.490272367429316}, {"id": "S3", "raw": "f-adt1-0005", "color": "#ffbf69", "audio": "solo/00d68569-4281-41b9-9985-df1c026b2ddc/f-adt1-0005.wav", "speech": 21.79, "turns": 3, "rmsDb": -30.642070867439053}], "soloVerification": {"snr_db": 70.06269339884642, "correlation": 0.9999999855155031, "max_abs_residual": 3.052345709875226e-05, "mix_peak": 0.410369873046875}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/00d68569-4281-41b9-9985-df1c026b2ddc.rttm", "segments": [{"start": 0.972, "end": 14.892, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 6.113, "end": 11.333, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.172, "end": 24.212, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.212, "end": 30.612000000000002, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.552, "end": 33.092, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.472, "end": 37.932, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 38.472, "end": 47.492000000000004, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 42.993, "end": 53.133, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 53.612, "end": 57.492000000000004, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 57.752, "end": 68.312, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 10, "speech": 81.18, "union": 64.401, "overlap": 16.779000000000003, "overlap_pct": 24.56223495990376}, "score": {"der": 13.92, "jer": 21.4, "b3_f1": 0.82}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/00d68569-4281-41b9-9985-df1c026b2ddc.rttm", "segments": [{"start": 1.012, "end": 6.811999999999999, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 6.213, "end": 11.213000000000001, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 8.212, "end": 8.972, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 9.413, "end": 14.773, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 16.212, "end": 24.092, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.273, "end": 30.533, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.753, "end": 26.213, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 26.793, "end": 27.093, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 27.212, "end": 27.972, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.492, "end": 28.532, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.552, "end": 28.572, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.812, "end": 29.952, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 30.032, "end": 33.052, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.493, "end": 37.873000000000005, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 38.532, "end": 47.372, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 43.112, "end": 53.092, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 53.653, "end": 57.452999999999996, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 57.793, "end": 68.213, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 18, "speech": 76.22, "union": 63.760999999999996, "overlap": 12.459, "overlap_pct": 18.238326799299177}, "score": {"der": 18.64, "jer": 25.19, "b3_f1": 0.72}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/00d68569-4281-41b9-9985-df1c026b2ddc.rttm", "segments": [{"start": 0.9285, "end": 14.9185, "raw": "f-adt1-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 6.1201, "end": 11.350100000000001, "raw": "f-adt1-0004", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.1753, "end": 24.2153, "raw": "f-adt1-0004", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.2065, "end": 30.566499999999998, "raw": "f-adt1-0005", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.4916, "end": 33.081599999999995, "raw": "f-adt1-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.4613, "end": 37.911300000000004, "raw": "f-adt1-0005", "speaker": "S3", "color": "#ffbf69"}, {"start": 38.4998, "end": 47.4798, "raw": "f-adt1-0005", "speaker": "S3", "color": "#ffbf69"}, {"start": 42.9641, "end": 53.134100000000004, "raw": "f-adt1-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 53.6202, "end": 57.4702, "raw": "f-adt1-0004", "speaker": "S2", "color": "#3ddc97"}, {"start": 57.7623, "end": 68.3122, "raw": "f-adt1-0004", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "f-adt1-0002", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0004", "color": "#3ddc97"}, {"id": "S3", "raw": "f-adt1-0005", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 10, "speech": 81.2099, "union": 64.38050000000001, "overlap": 16.829399999999996, "overlap_pct": 24.636013888444133}, "score": null}}}, {"id": "0113aa6c-197b-433e-bab1-6410990b91a2", "duration": 62.9805625, "durationFmt": "01:03.0", "audio": "audio/0113aa6c-197b-433e-bab1-6410990b91a2.wav", "waveform": "waveforms/0113aa6c-197b-433e-bab1-6410990b91a2.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97", "audio": "solo/0113aa6c-197b-433e-bab1-6410990b91a2/f-adt1-0005.wav", "speech": 18.67925, "turns": 2, "rmsDb": -26.95385798263721}, {"id": "S1", "raw": "m-adt4-0001", "color": "#6ea8ff", "audio": "solo/0113aa6c-197b-433e-bab1-6410990b91a2/m-adt4-0001.wav", "speech": 51.339999999999996, "turns": 3, "rmsDb": -19.786083426511205}], "soloVerification": {"snr_db": 76.16828276154722, "correlation": 0.9999999967644229, "max_abs_residual": 3.053379140874335e-05, "mix_peak": 0.989990234375}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/0113aa6c-197b-433e-bab1-6410990b91a2.rttm", "segments": [{"start": 0.393, "end": 17.433, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 17.933, "end": 28.153, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 28.633, "end": 62.992999999999995, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 29.232, "end": 37.852, "raw": "1", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 4, "speech": 70.24, "union": 61.62, "overlap": 8.619999999999997, "overlap_pct": 13.686762483266163}, "score": {"der": 0.0, "jer": 0.46, "b3_f1": 0.99}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/0113aa6c-197b-433e-bab1-6410990b91a2.rttm", "segments": [{"start": 0.453, "end": 10.713, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 10.872, "end": 17.432, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 17.953, "end": 28.093, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 28.692, "end": 62.972, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 29.273, "end": 37.753, "raw": "1", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 5, "speech": 69.72, "union": 61.24, "overlap": 8.48, "overlap_pct": 13.464471677273446}, "score": {"der": 0.24, "jer": 0.54, "b3_f1": 0.99}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/0113aa6c-197b-433e-bab1-6410990b91a2.rttm", "segments": [{"start": 0.3902, "end": 17.4102, "raw": "m-adt4-0001", "speaker": "S1", "color": "#6ea8ff"}, {"start": 17.9325, "end": 28.110300000000002, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}, {"start": 28.6506, "end": 62.980599999999995, "raw": "m-adt4-0001", "speaker": "S1", "color": "#6ea8ff"}, {"start": 29.2341, "end": 37.7355, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "m-adt4-0001", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 4, "speech": 70.0292, "union": 61.5278, "overlap": 8.5014, "overlap_pct": 13.498450414760905}, "score": null}}}, {"id": "016a9054-c68d-495e-978d-c944f23e80ec", "duration": 65.0330625, "durationFmt": "01:05.0", "audio": "audio/016a9054-c68d-495e-978d-c944f23e80ec.wav", "waveform": "waveforms/016a9054-c68d-495e-978d-c944f23e80ec.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S1", "raw": "f-adt1-0005", "color": "#6ea8ff", "audio": "solo/016a9054-c68d-495e-978d-c944f23e80ec/f-adt1-0005.wav", "speech": 40.480000000000004, "turns": 5, "rmsDb": -18.921022679238877}, {"id": "S2", "raw": "f-adt2-0002", "color": "#3ddc97", "audio": "solo/016a9054-c68d-495e-978d-c944f23e80ec/f-adt2-0002.wav", "speech": 24.598750000000003, "turns": 2, "rmsDb": -23.269092059493694}], "soloVerification": {"snr_db": 77.63475853256166, "correlation": 0.9999999976799581, "max_abs_residual": 3.055390473094555e-05, "mix_peak": 0.990020751953125}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/016a9054-c68d-495e-978d-c944f23e80ec.rttm", "segments": [{"start": 0.812, "end": 5.632000000000001, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 4.973, "end": 17.653, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.852, "end": 23.092, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 22.732, "end": 34.592, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 34.752, "end": 40.832, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 41.632, "end": 65.05199999999999, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 6, "speech": 65.1, "union": 63.279999999999994, "overlap": 1.8199999999999985, "overlap_pct": 2.7985764933029236}, "score": {"der": 0.0, "jer": 0.54, "b3_f1": 0.99}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/016a9054-c68d-495e-978d-c944f23e80ec.rttm", "segments": [{"start": 0.833, "end": 5.493, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 5.033, "end": 17.573, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.953, "end": 22.993, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 22.793, "end": 34.513, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 34.793, "end": 40.793, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 41.713, "end": 65.033, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 6, "speech": 64.28, "union": 62.99999999999999, "overlap": 1.2800000000000002, "overlap_pct": 1.9682296216635964}, "score": {"der": 0.0, "jer": 1.34, "b3_f1": 0.98}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/016a9054-c68d-495e-978d-c944f23e80ec.rttm", "segments": [{"start": 0.8147, "end": 5.5347, "raw": "f-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 4.9799, "end": 17.6687, "raw": "f-adt2-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 16.7221, "end": 23.092100000000002, "raw": "f-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 22.6671, "end": 34.5771, "raw": "f-adt2-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 34.7421, "end": 40.8121, "raw": "f-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}, {"start": 41.65, "end": 65.03309999999999, "raw": "f-adt1-0005", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "f-adt1-0005", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt2-0002", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 6, "speech": 65.14189999999999, "union": 63.21549999999999, "overlap": 1.926400000000001, "overlap_pct": 2.9621855806037134}, "score": null}}}, {"id": "01b7256b-6c35-4e30-bf42-99e4f20c7be3", "duration": 92.1388125, "durationFmt": "01:32.1", "audio": "audio/01b7256b-6c35-4e30-bf42-99e4f20c7be3.wav", "waveform": "waveforms/01b7256b-6c35-4e30-bf42-99e4f20c7be3.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S2", "raw": "f-adt1-0002", "color": "#3ddc97", "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/f-adt1-0002.wav", "speech": 13.193125, "turns": 2, "rmsDb": -24.69773330997168}, {"id": "S4", "raw": "m-adt1-0004", "color": "#ff6b81", "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt1-0004.wav", "speech": 3.86, "turns": 1, "rmsDb": -36.25214864456905}, {"id": "S3", "raw": "m-adt2-0001", "color": "#ffbf69", "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt2-0001.wav", "speech": 46.812, "turns": 7, "rmsDb": -20.979208351963386}, {"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff", "audio": "solo/01b7256b-6c35-4e30-bf42-99e4f20c7be3/m-adt2-0002.wav", "speech": 40.36, "turns": 5, "rmsDb": -25.144351930043115}], "soloVerification": {"snr_db": 76.9255838260243, "correlation": 0.999999997159667, "max_abs_residual": 3.054264435567444e-05, "mix_peak": 0.990020751953125}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/01b7256b-6c35-4e30-bf42-99e4f20c7be3.rttm", "segments": [{"start": 0.972, "end": 8.052, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.173, "end": 12.753, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 10.793, "end": 17.933, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.652, "end": 25.192, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.273, "end": 41.373000000000005, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.433, "end": 42.173, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 41.373, "end": 41.433, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 42.993, "end": 49.553000000000004, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 49.972, "end": 56.332, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 53.933, "end": 62.493, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 62.493, "end": 62.513000000000005, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 62.612, "end": 68.592, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 68.793, "end": 76.433, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 76.273, "end": 81.993, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 82.252, "end": 90.872, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 88.373, "end": 88.433, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 88.433, "end": 92.153, "raw": "3", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "1", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 17, "speech": 104.48, "union": 88.583, "overlap": 15.897000000000007, "overlap_pct": 17.253315479836477}, "score": {"der": 3.12, "jer": 31.11, "b3_f1": 0.96}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/01b7256b-6c35-4e30-bf42-99e4f20c7be3.rttm", "segments": [{"start": 1.012, "end": 7.432, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.232, "end": 12.712, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 7.433, "end": 7.973, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 10.852, "end": 17.792, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.732, "end": 25.112, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.312, "end": 33.132000000000005, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.472, "end": 41.212, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.493, "end": 42.133, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 41.213, "end": 41.353, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 43.073, "end": 49.433, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 50.032, "end": 56.272, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 54.013, "end": 62.452999999999996, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 62.752, "end": 68.452, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 68.833, "end": 76.333, "raw": "3", "speaker": "S2", "color": "#3ddc97"}, {"start": 76.333, "end": 81.953, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 82.293, "end": 90.75300000000001, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 88.493, "end": 91.193, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 91.193, "end": 92.133, "raw": "3", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "3", "color": "#3ddc97"}, {"id": "S3", "raw": "1", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 18, "speech": 102.06000000000002, "union": 87.082, "overlap": 14.978000000000021, "overlap_pct": 16.255907357173744}, "score": {"der": 3.53, "jer": 30.29, "b3_f1": 0.91}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/01b7256b-6c35-4e30-bf42-99e4f20c7be3.rttm", "segments": [{"start": 0.9636, "end": 7.993600000000001, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.2072, "end": 12.7103, "raw": "f-adt1-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 10.8107, "end": 17.9007, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.6833, "end": 25.1833, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 25.2282, "end": 41.4012, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.4763, "end": 42.136300000000006, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 43.02, "end": 49.52, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 50.004, "end": 56.294, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 53.9144, "end": 62.4944, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 62.6051, "end": 68.5771, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 68.7234, "end": 76.4134, "raw": "f-adt1-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 76.1827, "end": 81.9827, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}, {"start": 82.2518, "end": 90.87180000000001, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 88.2788, "end": 92.1388, "raw": "m-adt1-0004", "speaker": "S4", "color": "#ff6b81"}], "speakers": [{"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0002", "color": "#3ddc97"}, {"id": "S3", "raw": "m-adt2-0001", "color": "#ffbf69"}, {"id": "S4", "raw": "m-adt1-0004", "color": "#ff6b81"}], "stats": {"speakers": 4, "turns": 14, "speech": 104.2681, "union": 88.4539, "overlap": 15.8142, "overlap_pct": 17.163451070090577}, "score": null}}}, {"id": "01ee74a6-1dab-48e8-b921-293cb6a8a65c", "duration": 61.9778125, "durationFmt": "01:02.0", "audio": "audio/01ee74a6-1dab-48e8-b921-293cb6a8a65c.wav", "waveform": "waveforms/01ee74a6-1dab-48e8-b921-293cb6a8a65c.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S2", "raw": "f-adt1-0002", "color": "#3ddc97", "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/f-adt1-0002.wav", "speech": 4.3908125, "turns": 1, "rmsDb": -45.300128577834826}, {"id": "S3", "raw": "f-adt1-0005", "color": "#ffbf69", "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/f-adt1-0005.wav", "speech": 38.1765, "turns": 6, "rmsDb": -24.57160916543257}, {"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff", "audio": "solo/01ee74a6-1dab-48e8-b921-293cb6a8a65c/m-adt2-0002.wav", "speech": 28.231, "turns": 4, "rmsDb": -25.699518183497773}], "soloVerification": {"snr_db": 73.13582067021392, "correlation": 0.9999999934916375, "max_abs_residual": 3.054350242821802e-05, "mix_peak": 0.990020751953125}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/01ee74a6-1dab-48e8-b921-293cb6a8a65c.rttm", "segments": [{"start": 0.393, "end": 5.353, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 5.053, "end": 9.453, "raw": "0", "speaker": "S2", "color": "#3ddc97"}, {"start": 7.812, "end": 18.572, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.293, "end": 26.593, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 27.453, "end": 42.413, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.293, "end": 61.992999999999995, "raw": "2", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "0", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 6, "speech": 71.07999999999998, "union": 60.739999999999995, "overlap": 10.339999999999996, "overlap_pct": 16.68338972111995}, "score": {"der": 0.0, "jer": 0.81, "b3_f1": 0.98}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/01ee74a6-1dab-48e8-b921-293cb6a8a65c.rttm", "segments": [{"start": 0.432, "end": 5.232, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 5.133, "end": 9.373000000000001, "raw": "0", "speaker": "S2", "color": "#3ddc97"}, {"start": 7.853, "end": 12.793, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 13.152, "end": 18.472, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.372, "end": 26.552, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 27.512, "end": 33.232, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 33.772, "end": 36.092, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.412, "end": 40.332, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 36.552, "end": 40.032, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 40.353, "end": 42.333, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 40.713, "end": 47.233000000000004, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 47.433, "end": 56.713, "raw": "2", "speaker": "S3", "color": "#ffbf69"}, {"start": 57.093, "end": 61.773, "raw": "2", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "0", "color": "#3ddc97"}, {"id": "S3", "raw": "2", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 13, "speech": 67.38, "union": 58.881, "overlap": 8.498999999999997, "overlap_pct": 13.712971880057879}, "score": {"der": 4.11, "jer": 4.85, "b3_f1": 0.9}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/01ee74a6-1dab-48e8-b921-293cb6a8a65c.rttm", "segments": [{"start": 0.3962, "end": 5.2614, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 5.0736, "end": 9.4644, "raw": "f-adt1-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 7.8108, "end": 18.5001, "raw": "f-adt1-0005", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.3024, "end": 26.5766, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 27.472, "end": 42.580600000000004, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.1168, "end": 61.9778, "raw": "f-adt1-0005", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0002", "color": "#3ddc97"}, {"id": "S3", "raw": "f-adt1-0005", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 6, "speech": 71.18910000000001, "union": 60.6862, "overlap": 10.502900000000007, "overlap_pct": 16.946225715855988}, "score": null}}}, {"id": "02216a40-5e76-4590-967a-ed3b7fcfff39", "duration": 65.2179375, "durationFmt": "01:05.2", "audio": "audio/02216a40-5e76-4590-967a-ed3b7fcfff39.wav", "waveform": "waveforms/02216a40-5e76-4590-967a-ed3b7fcfff39.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff", "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt1-0003.wav", "speech": 50.04, "turns": 4, "rmsDb": -34.25384418035377}, {"id": "S3", "raw": "m-adt2-0001", "color": "#ffbf69", "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt2-0001.wav", "speech": 6.2, "turns": 1, "rmsDb": -52.64856032605681}, {"id": "S2", "raw": "m-adt2-0002", "color": "#3ddc97", "audio": "solo/02216a40-5e76-4590-967a-ed3b7fcfff39/m-adt2-0002.wav", "speech": 20.42, "turns": 2, "rmsDb": -35.6801160508373}], "soloVerification": {"snr_db": 63.38184095286471, "correlation": 0.9999999362901958, "max_abs_residual": 3.052013926208019e-05, "mix_peak": 0.2137451171875}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/02216a40-5e76-4590-967a-ed3b7fcfff39.rttm", "segments": [{"start": 0.453, "end": 10.033, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 10.672, "end": 21.192, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.113, "end": 32.093, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 24.532, "end": 65.232, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.653, "end": 39.992999999999995, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 39.993, "end": 40.973, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 40.972, "end": 40.992000000000004, "raw": "0", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "2", "color": "#3ddc97"}, {"id": "S3", "raw": "0", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 7, "speech": 77.12, "union": 63.219, "overlap": 13.900000000000002, "overlap_pct": 21.313154835661585}, "score": {"der": 0.88, "jer": 6.59, "b3_f1": 0.97}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/02216a40-5e76-4590-967a-ed3b7fcfff39.rttm", "segments": [{"start": 0.512, "end": 9.952, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 10.733, "end": 21.093, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.172, "end": 32.032, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 24.573, "end": 49.233000000000004, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.692, "end": 39.992, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 39.993, "end": 40.873000000000005, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 40.873, "end": 40.893, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 49.373, "end": 65.173, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "2", "color": "#3ddc97"}, {"id": "S3", "raw": "0", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 8, "speech": 76.32, "union": 62.661, "overlap": 13.658999999999992, "overlap_pct": 20.943624597143984}, "score": {"der": 1.07, "jer": 6.84, "b3_f1": 0.96}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/02216a40-5e76-4590-967a-ed3b7fcfff39.rttm", "segments": [{"start": 0.4568, "end": 10.0068, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 10.6799, "end": 21.1699, "raw": "m-adt2-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 22.1451, "end": 32.0751, "raw": "m-adt2-0002", "speaker": "S2", "color": "#3ddc97"}, {"start": 24.521, "end": 65.218, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.6778, "end": 40.8778, "raw": "m-adt2-0001", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff"}, {"id": "S2", "raw": "m-adt2-0002", "color": "#3ddc97"}, {"id": "S3", "raw": "m-adt2-0001", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 5, "speech": 76.867, "union": 63.1129, "overlap": 13.754100000000001, "overlap_pct": 21.089443375911728}, "score": null}}}, {"id": "024cc08a-9b53-4c4d-9692-911a5f8da769", "duration": 68.856625, "durationFmt": "01:08.9", "audio": "audio/024cc08a-9b53-4c4d-9692-911a5f8da769.wav", "waveform": "waveforms/024cc08a-9b53-4c4d-9692-911a5f8da769.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97", "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/f-adt1-0005.wav", "speech": 22.6203125, "turns": 3, "rmsDb": -35.609895533972406}, {"id": "S3", "raw": "f-adt2-0002", "color": "#ffbf69", "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/f-adt2-0002.wav", "speech": 12.5546875, "turns": 2, "rmsDb": -39.50131712824674}, {"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff", "audio": "solo/024cc08a-9b53-4c4d-9692-911a5f8da769/m-adt2-0002.wav", "speech": 55.6703125, "turns": 7, "rmsDb": -35.434561185618435}], "soloVerification": {"snr_db": 63.441609282016586, "correlation": 0.9999999398904763, "max_abs_residual": 3.052433021366596e-05, "mix_peak": 0.240325927734375}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/024cc08a-9b53-4c4d-9692-911a5f8da769.rttm", "segments": [{"start": 0.413, "end": 13.213000000000001, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 0.593, "end": 8.773, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 9.832, "end": 17.412, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 14.913, "end": 40.233000000000004, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 17.413, "end": 17.593, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 17.593, "end": 18.353, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 18.352, "end": 18.712, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 18.712, "end": 18.932, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 18.933, "end": 19.093, "raw": "0", "speaker": "S3", "color": "#ffbf69"}, {"start": 19.093, "end": 23.993000000000002, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 39.392, "end": 47.492000000000004, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 45.312, "end": 53.872, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 54.332, "end": 58.952, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 59.192, "end": 68.892, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "2", "color": "#3ddc97"}, {"id": "S3", "raw": "0", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 14, "speech": 91.44, "union": 67.779, "overlap": 23.660000000000007, "overlap_pct": 34.361254272918565}, "score": {"der": 13.4, "jer": 43.62, "b3_f1": 0.84}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/024cc08a-9b53-4c4d-9692-911a5f8da769.rttm", "segments": [{"start": 0.453, "end": 13.133, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 0.713, "end": 8.713, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 9.872, "end": 23.872, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 14.973, "end": 34.113, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 34.493, "end": 40.193000000000005, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 39.493, "end": 47.373000000000005, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 45.353, "end": 53.813, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}, {"start": 54.373, "end": 58.873, "raw": "2", "speaker": "S2", "color": "#3ddc97"}, {"start": 59.252, "end": 68.772, "raw": "1", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "1", "color": "#6ea8ff"}, {"id": "S2", "raw": "2", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 9, "speech": 89.88000000000002, "union": 67.0, "overlap": 22.880000000000003, "overlap_pct": 33.228465670514645}, "score": {"der": 14.27, "jer": 45.86, "b3_f1": 0.84}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/024cc08a-9b53-4c4d-9692-911a5f8da769.rttm", "segments": [{"start": 0.4364, "end": 13.0012, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 0.6672, "end": 8.944799999999999, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}, {"start": 9.7724, "end": 16.092399999999998, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}, {"start": 14.9416, "end": 34.193, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 15.9995, "end": 23.9542, "raw": "f-adt2-0002", "speaker": "S3", "color": "#ffbf69"}, {"start": 34.4666, "end": 40.1625, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 39.4517, "end": 47.4744, "raw": "f-adt1-0005", "speaker": "S2", "color": "#3ddc97"}, {"start": 45.3397, "end": 53.8579, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}, {"start": 54.3253, "end": 58.9253, "raw": "f-adt2-0002", "speaker": "S3", "color": "#ffbf69"}, {"start": 59.2066, "end": 68.8566, "raw": "m-adt2-0002", "speaker": "S1", "color": "#6ea8ff"}], "speakers": [{"id": "S1", "raw": "m-adt2-0002", "color": "#6ea8ff"}, {"id": "S2", "raw": "f-adt1-0005", "color": "#3ddc97"}, {"id": "S3", "raw": "f-adt2-0002", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 10, "speech": 90.8553, "union": 67.39789999999999, "overlap": 23.364500000000003, "overlap_pct": 33.932101667777076}, "score": null}}}, {"id": "03694de5-ea85-4da0-bde0-f3abb2ba0ea4", "duration": 66.1713125, "durationFmt": "01:06.2", "audio": "audio/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.wav", "waveform": "waveforms/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.png", "ftScoreLink": "score_finetuned/score.txt", "baseScoreLink": "score_baseline/score.txt", "solo": [{"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff", "audio": "solo/03694de5-ea85-4da0-bde0-f3abb2ba0ea4/m-adt1-0003.wav", "speech": 38.55681250000001, "turns": 4, "rmsDb": -27.11518298881399}, {"id": "S2", "raw": "m-adt2-0001", "color": "#3ddc97", "audio": "solo/03694de5-ea85-4da0-bde0-f3abb2ba0ea4/m-adt2-0001.wav", "speech": 31.416687500000002, "turns": 3, "rmsDb": -24.785346373003904}], "soloVerification": {"snr_db": 72.35846605936399, "correlation": 0.9999999924216197, "max_abs_residual": 3.0528753995895386e-05, "mix_peak": 0.769683837890625}, "systems": {"finetuned": {"label": "Fine-tuned", "description": "Frozen-WavLM fine-tune; best checkpoint at epoch 8 on the full bundle.", "rttm": "pred_finetuned/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.rttm", "segments": [{"start": 0.413, "end": 4.813000000000001, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 4.812, "end": 6.412000000000001, "raw": "0", "speaker": "S2", "color": "#3ddc97"}, {"start": 6.413, "end": 6.513, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 6.513, "end": 6.753, "raw": "0", "speaker": "S2", "color": "#3ddc97"}, {"start": 6.913, "end": 31.073, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.312, "end": 10.612, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 31.413, "end": 45.772999999999996, "raw": "1", "speaker": "S3", "color": "#ffbf69"}, {"start": 44.153, "end": 52.413, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 52.412, "end": 66.212, "raw": "1", "speaker": "S3", "color": "#ffbf69"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "0", "color": "#3ddc97"}, {"id": "S3", "raw": "1", "color": "#ffbf69"}], "stats": {"speakers": 3, "turns": 9, "speech": 70.22, "union": 65.298, "overlap": 4.921999999999995, "overlap_pct": 7.438268660607261}, "score": {"der": 3.05, "jer": 2.81, "b3_f1": 0.96}}, "baseline": {"label": "Zero-shot baseline", "description": "Original v2 model without Khmer fine-tuning.", "rttm": "pred_baseline/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.rttm", "segments": [{"start": 0.512, "end": 6.672000000000001, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.053, "end": 9.713000000000001, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.413, "end": 10.593, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 9.872, "end": 27.872, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 28.133, "end": 30.993, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 31.532, "end": 33.112, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 33.312, "end": 37.251999999999995, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 37.733, "end": 41.393, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 41.752, "end": 43.572, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 43.853, "end": 45.713, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 44.293, "end": 52.393, "raw": "2", "speaker": "S1", "color": "#6ea8ff"}, {"start": 52.433, "end": 61.433, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 61.793, "end": 63.973, "raw": "1", "speaker": "S2", "color": "#3ddc97"}, {"start": 64.172, "end": 66.152, "raw": "1", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "2", "color": "#6ea8ff"}, {"id": "S2", "raw": "1", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 14, "speech": 66.98, "union": 62.539, "overlap": 4.4410000000000025, "overlap_pct": 6.711367558260239}, "score": {"der": 4.08, "jer": 4.81, "b3_f1": 0.93}}, "reference": {"label": "Reference", "description": "Ground-truth RTTM from the dev split.", "rttm": "ref/03694de5-ea85-4da0-bde0-f3abb2ba0ea4.rttm", "segments": [{"start": 0.4392, "end": 31.0419, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 7.3377, "end": 10.6233, "raw": "m-adt2-0001", "speaker": "S2", "color": "#3ddc97"}, {"start": 31.4055, "end": 45.7787, "raw": "m-adt2-0001", "speaker": "S2", "color": "#3ddc97"}, {"start": 44.2485, "end": 52.4103, "raw": "m-adt1-0003", "speaker": "S1", "color": "#6ea8ff"}, {"start": 52.4135, "end": 66.1714, "raw": "m-adt2-0001", "speaker": "S2", "color": "#3ddc97"}], "speakers": [{"id": "S1", "raw": "m-adt1-0003", "color": "#6ea8ff"}, {"id": "S2", "raw": "m-adt2-0001", "color": "#3ddc97"}], "stats": {"speakers": 2, "turns": 5, "speech": 70.1812, "union": 65.36540000000001, "overlap": 4.815800000000001, "overlap_pct": 7.27777615110778}, "score": null}}}]};
+  const MEETINGS = DEMO.meetings;
+  const BY_ID = Object.fromEntries(MEETINGS.map((item) => [item.id, item]));
+  const DEFAULT_ID = "00716422-f4a1-4a37-8170-d0eb2e110103";
+  const ORDER = ["finetuned", "baseline", "reference"];
+  const audio = document.getElementById("audio");
+  const soloSelect = document.getElementById("soloSpeaker");
+  const soloToggle = document.getElementById("soloToggle");
+  const soloStatus = document.getElementById("soloStatus");
+  const lanes = document.getElementById("lanes");
+  const playhead = document.createElement("div");
+  playhead.className = "playhead";
+  playhead.id = "playhead";
+  let meeting = BY_ID[DEFAULT_ID] || MEETINGS[0];
+  let duration = meeting.duration;
+  let current = "finetuned";
+  let soloSpeaker = null;
+  let soloOn = false;
+
+  function fmt(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const rest = (seconds % 60).toFixed(1).padStart(4, "0");
+    return `${String(minutes).padStart(2, "0")}:${rest}`;
+  }
+
+  function seek(seconds) {
+    audio.currentTime = Math.max(0, Math.min(duration, seconds));
+    audio.play();
+  }
+
+  function swapAudioSource(source, time, wasPlaying) {
+    audio.src = source;
+    audio.load();
+    audio.addEventListener("loadedmetadata", () => {
+      audio.currentTime = Math.max(0, Math.min(duration, time));
+      if (wasPlaying) audio.play();
+    }, { once: true });
+  }
+
+  function updateSoloOptions() {
+    const solo = meeting.solo || [];
+    soloSelect.innerHTML = solo
+      .map((speaker) => `<option value="${speaker.id}">${speaker.id} Â· ${speaker.raw} Â· ${speaker.speech.toFixed(1)}s</option>`)
+      .join("");
+    soloSelect.disabled = solo.length === 0;
+    soloToggle.disabled = solo.length === 0;
+    soloOn = false;
+    soloToggle.textContent = "Play solo";
+    soloToggle.classList.remove("active");
+    if (solo.length) {
+      soloSpeaker = solo[0];
+      soloSelect.value = solo[0].id;
+      const verification = meeting.soloVerification;
+      const snr = verification && Number.isFinite(verification.snr_db)
+        ? ` Â· reconstruction ${verification.snr_db.toFixed(0)} dB SNR`
+        : "";
+      soloStatus.textContent = `Exact source stems: clean target voice, all other speakers removed${snr}.`;
+    } else {
+      soloSpeaker = null;
+      soloStatus.textContent = "No exact source stem is available for this meeting.";
+    }
+  }
+
+  function setSolo(on) {
+    if (!soloSpeaker) return;
+    const time = audio.currentTime;
+    const wasPlaying = !audio.paused;
+    soloOn = on;
+    swapAudioSource(on ? soloSpeaker.audio : meeting.audio, time, wasPlaying);
+    soloToggle.textContent = on ? "Full mix" : "Play solo";
+    soloToggle.classList.toggle("active", on);
+    soloStatus.textContent = on
+      ? `Solo: ${soloSpeaker.id} (${soloSpeaker.raw}) - only this speaker.`
+      : `Full mixture. Exact solo stems available for ${meeting.solo.length} reference speakers.`;
+  }
+
+  function setPlayhead(seconds) {
+    const fraction = Math.max(0, Math.min(1, seconds / duration));
+    document.getElementById("wavePlayhead").style.left = `${fraction * 100}%`;
+    const track = lanes.querySelector(".lane-track");
+    if (track) {
+      const trackRect = track.getBoundingClientRect();
+      const lanesRect = lanes.getBoundingClientRect();
+      playhead.style.left = `${trackRect.left - lanesRect.left + fraction * trackRect.width}px`;
+    }
+    document.getElementById("clock").textContent = `${fmt(seconds)} / ${fmt(duration)}`;
+    document.querySelectorAll(".segment").forEach((element) => {
+      const start = Number(element.dataset.start);
+      const end = Number(element.dataset.end);
+      element.classList.toggle("active", seconds >= start && seconds < end);
+    });
+  }
+
+  function renderRuler() {
+    const ruler = document.getElementById("ruler");
+    const step = duration > 150 ? 30 : duration > 80 ? 20 : 10;
+    let markup = "";
+    for (let time = 0; time <= duration + 0.01; time += step) {
+      markup += `<span class="tick" style="left:${(time / duration) * 100}%">${fmt(time)}</span>`;
+    }
+    if (duration % step > 0.5) {
+      markup += `<span class="tick" style="left:100%">${fmt(duration)}</span>`;
+    }
+    ruler.innerHTML = markup;
+  }
+
+  function renderSystem(systemKey) {
+    current = systemKey;
+    const system = meeting.systems[systemKey];
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.system === systemKey);
+    });
+
+    const legend = document.getElementById("legend");
+    legend.innerHTML = system.speakers
+      .map((speaker) => `<span class="chip"><i style="background:${speaker.color}"></i>${speaker.id}<span class="mono muted">${speaker.raw}</span></span>`)
+      .join("");
+
+    lanes.innerHTML = "";
+    for (const speaker of system.speakers) {
+      const lane = document.createElement("div");
+      lane.className = "lane";
+      const label = document.createElement("div");
+      label.className = "lane-label";
+      label.innerHTML = `<i style="background:${speaker.color}"></i>${speaker.id}`;
+      label.title = speaker.raw;
+      const track = document.createElement("div");
+      track.className = "lane-track";
+      track.addEventListener("click", (event) => {
+        const rect = track.getBoundingClientRect();
+        seek(((event.clientX - rect.left) / rect.width) * duration);
+      });
+      for (const segment of system.segments.filter((item) => item.speaker === speaker.id)) {
+        const element = document.createElement("div");
+        element.className = "segment";
+        element.style.left = `${(segment.start / duration) * 100}%`;
+        element.style.width = `${Math.max(0.35, ((segment.end - segment.start) / duration) * 100)}%`;
+        element.style.background = speaker.color;
+        element.dataset.start = segment.start;
+        element.dataset.end = segment.end;
+        element.title = `${speaker.id} ${fmt(segment.start)} - ${fmt(segment.end)}`;
+        element.addEventListener("click", (event) => {
+          event.stopPropagation();
+          seek(segment.start);
+        });
+        track.appendChild(element);
+      }
+      lane.append(label, track);
+      lanes.appendChild(lane);
+    }
+    lanes.appendChild(playhead);
+
+    const stats = system.stats;
+    document.getElementById("systemMeta").innerHTML = `
+      <div class="system-title">${system.label}</div>
+      <div class="system-desc">${system.description}</div>
+      <div class="system-score">${system.score ? `<strong>DER ${system.score.der.toFixed(2)}%</strong> &middot; JER ${system.score.jer.toFixed(2)}% &middot; B3-F1 ${system.score.b3_f1.toFixed(3)}` : "Reference RTTM; no score"}</div>
+    `;
+    document.getElementById("systemStats").innerHTML = `
+      <div class="stat"><span>Speakers</span><strong>${stats.speakers}</strong></div>
+      <div class="stat"><span>Turns</span><strong>${stats.turns}</strong></div>
+      <div class="stat"><span>Speech</span><strong>${stats.speech.toFixed(1)}s</strong></div>
+      <div class="stat"><span>Overlap</span><strong>${stats.overlap.toFixed(1)}s</strong></div>
+    `;
+    document.getElementById("systemLinks").innerHTML = `
+      <a href="${system.rttm}">Open RTTM</a>
+      ${system.score ? `<a href="score_${systemKey}/score.txt">Open score.txt</a>` : ""}
+    `;
+
+    const body = document.getElementById("segments");
+    body.innerHTML = system.segments
+      .map((segment, index) => `
+        <tr data-start="${segment.start}">
+          <td>${index + 1}</td>
+          <td class="mono">${fmt(segment.start)}</td>
+          <td class="mono">${fmt(segment.end)}</td>
+          <td class="mono">${(segment.end - segment.start).toFixed(2)}s</td>
+          <td><span class="chip"><i style="background:${segment.color}"></i>${segment.speaker}</span></td>
+          <td class="mono muted">${segment.raw}</td>
+        </tr>
+      `)
+      .join("");
+    body.querySelectorAll("tr").forEach((row) => {
+      row.addEventListener("click", () => seek(Number(row.dataset.start)));
+    });
+    setPlayhead(audio.currentTime || 0);
+  }
+
+  function updateCards() {
+    const ft = meeting.systems.finetuned.score;
+    const base = meeting.systems.baseline.score;
+    const ref = meeting.systems.reference.stats;
+    const delta = base.der - ft.der;
+    const deltaClass = delta >= 0 ? "good-text" : "bad-text";
+
+    document.getElementById("cardFineDer").textContent = `${ft.der.toFixed(2)}%`;
+    document.getElementById("cardFineNote").textContent = `JER ${ft.jer.toFixed(2)}% Â· B3-F1 ${ft.b3_f1.toFixed(3)}`;
+    document.getElementById("cardBaseDer").textContent = `${base.der.toFixed(2)}%`;
+    document.getElementById("cardBaseNote").textContent = `JER ${base.jer.toFixed(2)}% Â· B3-F1 ${base.b3_f1.toFixed(3)}`;
+    const deltaNode = document.getElementById("cardDelta");
+    deltaNode.textContent = `${delta >= 0 ? "+" : ""}${delta.toFixed(2)} pt`;
+    deltaNode.className = `card-value ${deltaClass}`;
+    document.getElementById("cardSpeakers").textContent = `${ref.speakers}`;
+    document.getElementById("cardTurns").textContent = `${ref.turns} turns`;
+    document.getElementById("cardSpeech").textContent = `${ref.speech.toFixed(1)}s`;
+    document.getElementById("cardOverlap2").textContent = `${ref.overlap.toFixed(1)}s`;
+    document.getElementById("cardOverlapPct").textContent = `${ref.overlap_pct.toFixed(1)}% of file`;
+    document.getElementById("fileGlanceNote").textContent = `Per-file DER on ${meeting.id}`;
+  }
+
+  function updateHeader() {
+    const ft = meeting.systems.finetuned.score;
+    const base = meeting.systems.baseline.score;
+    const ref = meeting.systems.reference.stats;
+    document.getElementById("badgeFine").textContent = `Fine-tuned ${DEMO.overall.finetuned.der.toFixed(2)}% DER`;
+    document.getElementById("badgeBase").textContent = `Baseline ${DEMO.overall.baseline.der.toFixed(2)}% DER`;
+    document.getElementById("badgeSpeakers").textContent = `${ref.speakers} speakers selected`;
+    document.getElementById("badgeFiles").textContent = `${MEETINGS.length} dev meetings`;
+    document.getElementById("meetingLabel").textContent = `${meeting.id} Â· ${meeting.durationFmt} Â· ${ref.speakers} speakers Â· ${ref.turns} turns`;
+    document.getElementById("audioTitle").textContent = `Playable meeting audio Â· ${meeting.id}`;
+  }
+
+  function updateArtifacts() {
+    const ft = meeting.systems.finetuned;
+    const base = meeting.systems.baseline;
+    const ref = meeting.systems.reference;
+    document.getElementById("artifactList").innerHTML = `
+      <div class="artifact"><code><a href="${meeting.audio}">${meeting.audio}</a></code><br><span>Playable 16 kHz mono WAV.</span></div>
+      <div class="artifact"><code><a href="${ft.rttm}">fine-tuned RTTM</a></code><br><span>Predicted segments for this meeting.</span></div>
+      <div class="artifact"><code><a href="${base.rttm}">baseline RTTM</a></code><br><span>Zero-shot prediction on the same audio.</span></div>
+      <div class="artifact"><code><a href="${ref.rttm}">reference RTTM</a></code><br><span>Ground-truth segments from the dev split.</span></div>
+      <div class="artifact"><code><a href="${meeting.ftScoreLink}">fine-tuned score.txt</a></code><br><span>10-file score table; per-file row included.</span></div>
+      <div class="artifact"><code><a href="${meeting.baseScoreLink}">baseline score.txt</a></code><br><span>10-file score table; per-file row included.</span></div>
+      ${meeting.solo && meeting.solo.length ? `<div class="artifact"><code>${meeting.solo.map((speaker) => `<a href="${speaker.audio}">${speaker.id} ${speaker.raw}</a>`).join(" Â· ")}</code><br><span>Exact target-only stems (PCM16 WAV).</span></div>` : ""}
+    `;
+  }
+
+  function updateCallout() {
+    const ft = meeting.systems.finetuned.score;
+    const base = meeting.systems.baseline.score;
+    const ref = meeting.systems.reference.stats;
+    const delta = base.der - ft.der;
+    const direction = delta >= 0 ? "improvement" : "regression";
+    document.getElementById("callout").innerHTML = `
+      <strong>Fine-tuned ${ft.der.toFixed(2)}% vs baseline ${base.der.toFixed(2)}% DER</strong>
+      on this dev file: ${direction} of ${Math.abs(delta).toFixed(2)} points.
+      Reference has ${ref.speakers} speakers, ${ref.turns} turns, and ${ref.overlap.toFixed(1)}s of overlap.
+    `;
+  }
+
+  function updateTableSelection() {
+    document.querySelectorAll("#meetingTable tr").forEach((row) => {
+      row.classList.toggle("selected", row.dataset.id === meeting.id);
+    });
+  }
+
+  function renderMeeting(meetingId) {
+    const next = BY_ID[meetingId];
+    if (!next) return;
+    meeting = next;
+    duration = meeting.duration;
+    audio.pause();
+    updateSoloOptions();
+    audio.src = meeting.audio;
+    audio.load();
+    document.getElementById("waveform").src = meeting.waveform;
+    document.getElementById("meetingSelect").value = meeting.id;
+    document.getElementById("clock").textContent = `${fmt(0)} / ${fmt(duration)}`;
+    updateHeader();
+    updateCards();
+    updateArtifacts();
+    updateCallout();
+    updateTableSelection();
+    renderRuler();
+    renderSystem(current);
+  }
+
+  function buildMeetingTable() {
+    const body = document.getElementById("meetingTable");
+    body.innerHTML = MEETINGS.map((item) => {
+      const ft = item.systems.finetuned.score.der;
+      const base = item.systems.baseline.score.der;
+      const delta = base - ft;
+      const deltaClass = delta >= 0 ? "good-text" : "bad-text";
+      const speakers = item.systems.reference.stats.speakers;
+      return `
+        <tr data-id="${item.id}">
+          <td class="mono">${item.id}</td>
+          <td class="mono">${fmt(item.duration)}</td>
+          <td>${speakers}</td>
+          <td class="mono">${ft.toFixed(2)}%</td>
+          <td class="mono">${base.toFixed(2)}%</td>
+          <td class="mono ${deltaClass}">${delta >= 0 ? "+" : ""}${delta.toFixed(2)}</td>
+        </tr>
+      `;
+    }).join("");
+    body.querySelectorAll("tr").forEach((row) => {
+      row.addEventListener("click", () => renderMeeting(row.dataset.id));
+    });
+  }
+
+  function buildMeetingSelect() {
+    const select = document.getElementById("meetingSelect");
+    select.innerHTML = MEETINGS.map((item) => {
+      const ft = item.systems.finetuned.score.der;
+      const base = item.systems.baseline.score.der;
+      return `<option value="${item.id}">${item.id} Â· FT ${ft.toFixed(2)}% / base ${base.toFixed(2)}%</option>`;
+    }).join("");
+    select.addEventListener("change", () => renderMeeting(select.value));
+  }
+
+  function stepMeeting(direction) {
+    const index = MEETINGS.findIndex((item) => item.id === meeting.id);
+    const next = MEETINGS[(index + direction + MEETINGS.length) % MEETINGS.length];
+    renderMeeting(next.id);
+  }
+
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => renderSystem(tab.dataset.system));
+  });
+  soloSelect.addEventListener("change", () => {
+    soloSpeaker = (meeting.solo || []).find((speaker) => speaker.id === soloSelect.value) || null;
+    if (!soloSpeaker) return;
+    if (soloOn) {
+      const time = audio.currentTime;
+      const wasPlaying = !audio.paused;
+      swapAudioSource(soloSpeaker.audio, time, wasPlaying);
+    }
+    soloStatus.textContent = soloOn
+      ? `Solo: ${soloSpeaker.id} (${soloSpeaker.raw}) - only this speaker.`
+      : `Selected ${soloSpeaker.id} (${soloSpeaker.raw}). Press Play solo to isolate.`;
+  });
+  soloToggle.addEventListener("click", () => setSolo(!soloOn));
+  document.getElementById("prevMeeting").addEventListener("click", () => stepMeeting(-1));
+  document.getElementById("nextMeeting").addEventListener("click", () => stepMeeting(1));
+  audio.addEventListener("timeupdate", () => setPlayhead(audio.currentTime));
+  audio.addEventListener("seeking", () => setPlayhead(audio.currentTime));
+  window.addEventListener("resize", () => setPlayhead(audio.currentTime || 0));
+
+  buildMeetingSelect();
+  buildMeetingTable();
+  renderMeeting(meeting.id);
+</script>
+</body>
+</html>

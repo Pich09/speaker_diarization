@@ -1,0 +1,10 @@
+huggingface_hub>=0.23
+matplotlib>=3.8
+numpy
+psutil>=5.9
+scipy
+soundfile
+speechbrain>=1.0
+tabulate
+toml
+tqdm
